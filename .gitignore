@@ -1,0 +1,59 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+*.vs
+
+# Build output
+**/arm/
+**/arm64/
+**/debug/
+**/versions/
+**/out/
+**/Obj/
+**/obj/
+**/Logs/
+**/__cacheOutput/
+**/QLocal/
+**/VersionGeneration/
+**/OACR_Temp
+**/testbin
+**/StyleCop.Cache
+**/bin/Debug/
+**/bin/Release/
+**/publisher_shell_trace.txt
+**/trace_publisher.txt
+**/publisher_shell_trace_verbose.txt
+**/trace_publisherverbose.txt
+**/_rels
+**/buildinfo
+**/Retail
+**/msbuild*.log
