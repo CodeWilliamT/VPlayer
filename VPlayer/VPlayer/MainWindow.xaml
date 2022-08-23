@@ -129,7 +129,7 @@
             </Canvas>
             <Label x:Name="label_speed" Content="倍速:" Margin="0,31,230,0" VerticalAlignment="Top" Foreground="White" HorizontalAlignment="Right"/>
             <TextBlock x:Name="textBlock_speed" Margin="0,36,200,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="26" Foreground="White" Text="1.0" Height="19" Background="#00000000" HorizontalAlignment="Right"/>
-            <Slider x:Name="Slider_Speed" Margin="0,0,124,24" Width="78" Interval="1" Maximum="30" Value="10" ValueChanged="Slider_Speed_ValueChanged" SmallChange="1" HorizontalAlignment="Right" Height="18" VerticalAlignment="Bottom" Focusable="False" Cursor="Hand" ToolTip="加速/减速(Ctrl+←/→)"/>
+            <Slider x:Name="Slider_Speed" Margin="0,0,124,24" Width="78" Interval="1" Maximum="30" Value="10" ValueChanged="Slider_Speed_ValueChanged" SmallChange="1" HorizontalAlignment="Right" Height="18" VerticalAlignment="Bottom" Focusable="False" Cursor="Hand" ToolTip="加速/减速(Ctrl+↑/↓)"/>
             <Canvas x:Name="Canvas_Voice" Height="120" Width="35" Background="#FF303030" Margin="0,-86,93,42" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                 <Slider x:Name="Slider_Voice" Canvas.Left="-25" Canvas.Top="39" Width="86" RenderTransformOrigin="0.5,0.5" Maximum="100" SmallChange="1" TickFrequency="10" ValueChanged="Slider_Vioce_ValueChanged" Interval="1" IsMoveToPointEnabled="True" AutoToolTipPlacement="BottomRight" Cursor="Hand">
                     <Slider.RenderTransform>

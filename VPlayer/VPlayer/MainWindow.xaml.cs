@@ -427,10 +427,7 @@ namespace WpfVideoPlayer
 
         private void Slider_Process_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                SetVideoMode(false);
-            }
+            SetVideoMode(false);
         }
 
         private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
