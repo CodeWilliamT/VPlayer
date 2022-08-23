@@ -409,19 +409,11 @@ namespace WpfVideoPlayer
         {
             btnStart_Click(null, null);
         }
-        
-
-        private void Slider_Process_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            SetVideoMode(false);
-        }
-        
-
-        private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private void Slider_Process_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (Player.Source == null) return;
             Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            SetVideoMode(true);
+            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
         }
 
         private void Slider_Vioce_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -432,22 +424,6 @@ namespace WpfVideoPlayer
             LogInfo("音量:" + Player.Volume.ToString("P0"));
         }
         
-
-        private void Slider_Process_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                SetVideoMode(false);
-            }
-        }
-
-        private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (Player.Source == null) return;
-            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-            SetVideoMode(true);
-        }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {

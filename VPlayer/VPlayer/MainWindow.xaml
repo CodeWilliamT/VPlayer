@@ -94,7 +94,7 @@
                     <ImageBrush ImageSource="Images/Sound.png"/>
                 </Button.Background>
             </Button>
-            <Slider x:Name="Slider_Process"  Margin="35,4,35,52" Width="{Binding Width, ElementName=GirdMenu}" HorizontalAlignment="Stretch" KeyDown="Slider_Process_KeyDown" KeyUp="Slider_Process_KeyUp" SmallChange="5" Interval="5" IsMoveToPointEnabled="True" Focusable="False" PreviewMouseLeftButtonUp="Slider_Process_MouseUp" PreviewMouseLeftButtonDown="Slider_Process_MouseDown" Cursor="Hand" />
+            <Slider x:Name="Slider_Process"  Margin="35,4,35,52" Width="{Binding Width, ElementName=GirdMenu}" HorizontalAlignment="Stretch"  SmallChange="5" Interval="5" IsMoveToPointEnabled="True" Focusable="False" ValueChanged="Slider_Process_ValueChanged" Cursor="Hand" />
             <Button x:Name="btnLeft" Width="24" Foreground="#FF6E6E6E" Height="24" RenderTransformOrigin="0.958,1" Style="{StaticResource CustomButton}" Margin="6,2,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" Click="btnLeft_Click" ToolTip="快退(←)" Cursor="Hand">
                 <Button.Background>
                     <ImageBrush ImageSource="Images/ToLeft.png"/>
