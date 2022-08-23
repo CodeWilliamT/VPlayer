@@ -14,12 +14,12 @@
                     <MenuItem Name="menuOpenFile" Header="打开文件" Click="btnOpenFile_Click"/>
                     <MenuItem Name="menuOpenFolder" Header="打开文件夹" Click="btnOpenFolder_Click"/>
                 </MenuItem>
-                <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
-                <MenuItem Name="menuTop" Header="最前显示" Click="btnTop_Click" IsCheckable="True"/>
                 <MenuItem Name="menuSub" Header="字幕">
                     <MenuItem Name="menuSubOpen" Header="加载字幕" Click="btnSubOpen_Click"/>
                     <MenuItem Name="menuSubVisible" Header="隐藏字幕" Click="btnSubVisible_Click" IsCheckable="True"/>
                 </MenuItem>
+                <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
+                <MenuItem Name="menuTop" Header="最前显示" Click="btnTop_Click" IsCheckable="True"/>
             </ContextMenu>
         </Grid.ContextMenu>
 
