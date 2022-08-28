@@ -616,7 +616,9 @@ namespace WpfVideoPlayer
 
         private void formWindow_PreviewDrop(object sender, System.Windows.DragEventArgs e)
         {
-            //if (Mouse.LeftButton == MouseButtonState.Pressed) return;
+            if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
+                e.Effects = System.Windows.DragDropEffects.Move;
+            else e.Effects = System.Windows.DragDropEffects.None;
             string path = ((System.Array)e.Data.GetData(System.Windows.DataFormats.FileDrop)).GetValue(0).ToString();
             FileInfo fileInfo = new FileInfo(path);
             if ((fileInfo.Attributes & FileAttributes.Directory) == 0)
@@ -630,6 +632,7 @@ namespace WpfVideoPlayer
             {
                 OpenFolder(path);
             }
+
         }
 
         private void btnSub_Click(object sender, RoutedEventArgs e)
