@@ -68,7 +68,7 @@ namespace WpfVideoPlayer
             ".ogg",".oga",".dvd",".vqf"};
 
         List<string> supportedSubs = new List<string>()
-        { ".srt", ".ass", ".sub", ".vtt", ".wmv",".ram"
+        { ".srt", ".ass", ".sub", ".vtt",".ram"
         };
         public string defaultDirctory;
         public int defaultVoice=50;
@@ -613,19 +613,23 @@ namespace WpfVideoPlayer
             LogInfo("倍速：  " + Player.SpeedRatio.ToString("F1")+"倍速");
         }
 
-
-        private void formWindow_PreviewDrop(object sender, System.Windows.DragEventArgs e)
+        private void formWindow_DragEnter(object sender, System.Windows.DragEventArgs e)
         {
+
             if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
                 e.Effects = System.Windows.DragDropEffects.Move;
             else e.Effects = System.Windows.DragDropEffects.None;
+        }
+
+        private void formWindow_PreviewDrop(object sender, System.Windows.DragEventArgs e)
+        {
             string path = ((System.Array)e.Data.GetData(System.Windows.DataFormats.FileDrop)).GetValue(0).ToString();
             FileInfo fileInfo = new FileInfo(path);
             if ((fileInfo.Attributes & FileAttributes.Directory) == 0)
             {
                 if (supportedVideos.Contains(fileInfo.Extension.ToLower()))
                     OpenMediaFile(path);
-                if (supportedSubs.Contains(fileInfo.Extension.ToLower()))
+                else if (supportedSubs.Contains(fileInfo.Extension.ToLower()))
                     OpenSubFile(path);
             }
             else
@@ -879,8 +883,8 @@ namespace WpfVideoPlayer
                 }
                 else
                 {
-                    RefreshList(defaultDirctory);
                     defaultDirctory = folderName;
+                    RefreshList(defaultDirctory);
                     if (List_MediaFileNames.Count() > 0)
                         OpenMediaFile(List_MediaFileNames.First().Key);
                 }
@@ -1066,6 +1070,7 @@ namespace WpfVideoPlayer
             btnScreen.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/Images/Screen.png")));
             isWindowMax = !isWindowMax;
         }
+
 
         /// <summary>
         /// 配置是否显示最前

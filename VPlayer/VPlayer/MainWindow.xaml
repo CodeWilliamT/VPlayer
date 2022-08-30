@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfVideoPlayer"
         mc:Ignorable="d"
         Style="{StaticResource CustomWindow}"
-        Title="WpfVideoPlayer" Height="540" Width="950" KeyDown="formWindow_KeyDown" AllowDrop="True" Closing="formWindow_Closing" ContentRendered="formWindow_ContentRendered" WindowStyle="None" BorderBrush="Black" Background="Transparent" AllowsTransparency="True" SizeChanged="formWindow_SizeChanged"  PreviewDrop="formWindow_PreviewDrop" ResizeMode="CanResize">
+        Title="WpfVideoPlayer" Height="540" Width="950" KeyDown="formWindow_KeyDown" AllowDrop="True" Closing="formWindow_Closing" ContentRendered="formWindow_ContentRendered" WindowStyle="None" BorderBrush="Black" Background="Transparent" AllowsTransparency="True" SizeChanged="formWindow_SizeChanged"  PreviewDrop="formWindow_PreviewDrop" ResizeMode="CanResize" DragEnter="formWindow_DragEnter">
     <Grid x:Name="Grid_Form" Background="Black" PreviewMouseMove="Grid_Form_MouseMove" MouseLeftButtonDown="Grid_Form_MouseLeftButtonDown" >
         <Grid.ContextMenu>
             <ContextMenu MouseMove="Grid_Form_MouseMove">
