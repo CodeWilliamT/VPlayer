@@ -8,8 +8,14 @@ It equals using Windows Media Player with better UI and more funtions.
 
 It using your Windows default Codec.
 
+Windows Media Player Feature:
 
-Some code C path:
+Windows Setting→Apps→Optional features→Add a feature→
+
+SelectWindows Media Player→Install
+
+
+Some code-C path:
 
 HEVC CodeC:
 
