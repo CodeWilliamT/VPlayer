@@ -8,29 +8,28 @@
         Style="{StaticResource CustomWindow}"
         Title="WpfVideoPlayer" Height="540" Width="950" KeyDown="formWindow_KeyDown" AllowDrop="True" Closing="formWindow_Closing" ContentRendered="formWindow_ContentRendered" WindowStyle="None" BorderBrush="Black" Background="Transparent" AllowsTransparency="True" SizeChanged="formWindow_SizeChanged"  PreviewDrop="formWindow_PreviewDrop" ResizeMode="CanResize" DragEnter="formWindow_DragEnter">
     <Grid x:Name="Grid_Form" Background="Black" PreviewMouseMove="Grid_Form_MouseMove" MouseLeftButtonDown="Grid_Form_MouseLeftButtonDown" >
-        <Grid.ContextMenu>
-            <ContextMenu MouseMove="Grid_Form_MouseMove">
-                <MenuItem Name="menuOpen" Header="打开">
-                    <MenuItem Name="menuOpenFile" Header="打开文件" Click="btnOpenFile_Click"/>
-                    <MenuItem Name="menuOpenFolder" Header="打开文件夹" Click="btnOpenFolder_Click"/>
-                </MenuItem>
-                <MenuItem Name="menuSub" Header="字幕">
-                    <MenuItem Name="menuSubOpen" Header="加载字幕" Click="btnSubOpen_Click"/>
-                    <MenuItem Name="menuSubVisible" Header="隐藏字幕" Click="btnSubVisible_Click" IsCheckable="True"/>
-                </MenuItem>
-                <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
-                <MenuItem Name="menuTop" Header="最前显示" Click="btnTop_Click" IsCheckable="True"/>
-            </ContextMenu>
-        </Grid.ContextMenu>
-
         <MediaElement x:Name="Player" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel" Opacity="0.95">
+            <MediaElement.ContextMenu>
+                <ContextMenu MouseMove="Grid_Form_MouseMove">
+                    <MenuItem Name="menuOpen" Header="打开">
+                        <MenuItem Name="menuOpenFile" Header="打开文件" Click="btnOpenFile_Click"/>
+                        <MenuItem Name="menuOpenFolder" Header="打开文件夹" Click="btnOpenFolder_Click"/>
+                    </MenuItem>
+                    <MenuItem Name="menuSub" Header="字幕">
+                        <MenuItem Name="menuSubOpen" Header="加载字幕" Click="btnSubOpen_Click"/>
+                        <MenuItem Name="menuSubVisible" Header="隐藏字幕" Click="btnSubVisible_Click" IsCheckable="True"/>
+                    </MenuItem>
+                    <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
+                    <MenuItem Name="menuTop" Header="最前显示" Click="btnTop_Click" IsCheckable="True"/>
+                </ContextMenu>
+            </MediaElement.ContextMenu>
         </MediaElement>
         <Button x:Name="btnShowList" Content="&gt;" Margin="0,0,273,0" VerticalAlignment="Center" Background="#7F000000" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" HorizontalAlignment="Right" Width="20" Height="100" Focusable="False" Cursor="Hand"/>
 
-        <TreeView x:Name="TreeView_File" Margin="0,60,0,76"  Background="#CC373838" HorizontalAlignment="Right" Width="290" MouseDoubleClick="TreeView_File_MouseDoubleClick" Foreground="#FFB1B1B1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0"  >
+        <TreeView x:Name="TreeView_File" Margin="0,60,0,76"  Background="#CC373838" HorizontalAlignment="Right" Width="270" MouseDoubleClick="TreeView_File_MouseDoubleClick" Foreground="#FFB1B1B1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0"  >
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type local:CustomNode}" ItemsSource="{Binding Childs}">
-                    <TextBlock Text="{Binding Name}" Foreground="White" >
+                    <TextBlock Text="{Binding Name}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Style.Triggers>
@@ -38,7 +37,10 @@
                                         <Setter Property="Background" Value="Gray"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsUsing}" Value="True">
-                                        <Setter Property="FontWeight" Value="Bold"/>
+                                        <Setter Property="Foreground" Value="SkyBlue"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsUsing}" Value="False">
+                                        <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
