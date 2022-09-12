@@ -18,9 +18,73 @@ using System.Windows.Threading;
 using System.Runtime.InteropServices;
 using Utils;
 using System.Threading;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace WpfVideoPlayer
 {
+
+    public class CustomNode: TreeViewItemBase
+    {
+        public CustomNode()
+        {
+            this.Childs = new ObservableCollection<CustomNode>();
+        }
+
+        public string Name { get; set; }
+        public string FullName { get; set; }
+
+        public ObservableCollection<CustomNode> Childs { get; set; }
+    }
+
+    public class TreeViewItemBase : INotifyPropertyChanged
+    {
+        private bool isSelected;
+        public bool IsSelected
+        {
+            get { return this.isSelected; }
+            set
+            {
+                if (value != this.isSelected)
+                {
+                    this.isSelected = value;
+                    NotifyPropertyChanged("IsSelected");
+                }
+            }
+        }
+        private bool isExpanded;
+        public bool IsExpanded
+        {
+            get { return this.isExpanded; }
+            set
+            {
+                if (value != this.isExpanded)
+                {
+                    this.isExpanded = value;
+                    NotifyPropertyChanged("IsExpanded");
+                }
+            }
+        }
+        private bool isUsing;
+        public bool IsUsing
+        {
+            get { return this.isUsing; }
+            set
+            {
+                if (value != this.isUsing)
+                {
+                    this.isUsing = value;
+                    NotifyPropertyChanged("IsUsing");
+                }
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void NotifyPropertyChanged(string propName)
+        {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propName));
+        }
+    }
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -36,6 +100,9 @@ namespace WpfVideoPlayer
                 Position = 0;
             }
         }
+
+
+
         string title = "VPlayer By WilliamT";
         double minWidth = 630;
         double minHeight = 250;
@@ -43,6 +110,7 @@ namespace WpfVideoPlayer
         double preWidth = 630;
         double preHeight = 250;
 
+        int nowIdx=0;
         bool isWindowMax;
         float scaleX;
         bool playFileFlag;
@@ -55,9 +123,9 @@ namespace WpfVideoPlayer
         DispatcherTimer timer_Process;
         DispatcherTimer timer_Time;
         DispatcherTimer timer_Sub;
-        List<FileInfo> List_MediaFiles;
+        List<CustomNode> List_MediaFileNodes;
         List<FileInfo> List_SubFiles;
-        Dictionary<string,int> List_MediaFileNames;
+        List<string> List_MediaFileNames;
         List<SubtitlesParser.Classes.SubtitleItem> subItems;
         List<string> supportedVideos = new List<string>()
         { ".asf", ".avi", ".wm", ".wmp", ".wmv",
@@ -71,11 +139,11 @@ namespace WpfVideoPlayer
         { ".srt", ".ass", ".sub", ".vtt",".ram"
         };
         public string defaultDirctory;
+        public List<string> List_Dirctory;
         public int defaultVoice=50;
         public string nowFileName="";
         public string nowSubName = "";
         public int nowPosition=0;
-        public int nowIdx;
         public Size defaultSize;
 
         public MainWindow()
@@ -122,7 +190,7 @@ namespace WpfVideoPlayer
         public static extern bool GetCursorPos(out POINT pt);
         public void SetupUI()
         {
-            ListBox_File.Margin = new Thickness(ListBox_File.Margin.Left, Canvas_Top.Height, ListBox_File.Margin.Right,  Gird_Menu.Height);
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right,  Gird_Menu.Height);
             //异常处理
             System.Windows.Forms.Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             System.Windows.Forms.Application.ThreadException += Application_ThreadException;
@@ -166,10 +234,10 @@ namespace WpfVideoPlayer
                 Slider_Voice.Value = 50;
             }
             defaultDirctory = defaultDirctory.Replace("\0", "");
-            List_MediaFiles=new List<FileInfo>();
+            List_MediaFileNodes=new List<CustomNode>();
             List_SubFiles = new List<FileInfo>();
-            List_MediaFileNames =new Dictionary<string, int>();
-            RefreshList(defaultDirctory);
+            List_MediaFileNames = new List<string>();
+            RefreshFileTree();
         }
         /// <summary>
         /// 异常处理
@@ -348,7 +416,7 @@ namespace WpfVideoPlayer
         {
             Canvas_Top.Opacity = 0;
             Gird_Menu.Opacity = 0;
-            if(ListBox_File.Visibility == Visibility.Hidden)
+            if(TreeView_File.Visibility == Visibility.Hidden)
                 btnShowList.Opacity = 0;
             Task.Run(new Action(() =>
             {
@@ -397,8 +465,8 @@ namespace WpfVideoPlayer
         {
             if (Player.Source == null)
             {
-                if (List_MediaFiles == null) return;
-                if (List_MediaFiles.Count == 0) return;
+                if (List_MediaFileNodes == null) return;
+                if (List_MediaFileNodes.Count == 0) return;
                 OpenMediaFile(nowFileName);
                 return;
             }
@@ -455,8 +523,8 @@ namespace WpfVideoPlayer
             if (Player.Source != null)
                 if (Player.NaturalDuration.HasTimeSpan)
                 {
-                    AppConfigHelper.UpdateKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
-                    if(subItems != null && subItems.Count()>0)AppConfigHelper.UpdateKey("FileRecordSub-" + nowFileName, nowSubName);
+                    AppConfigHelper.SaveKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
+                    if(subItems != null && subItems.Count()>0)AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
                     
                 }
             Player.Stop();
@@ -484,7 +552,7 @@ namespace WpfVideoPlayer
             Canvas_File.Visibility = Visibility.Visible;
             btnLast.IsEnabled = false;
             btnNext.IsEnabled = false;
-            ListBox_File.Margin = new Thickness(ListBox_File.Margin.Left, Canvas_Top.Height, ListBox_File.Margin.Right, Gird_Menu.Height);
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right, Gird_Menu.Height);
         }
 
         private void formWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -539,17 +607,26 @@ namespace WpfVideoPlayer
             if (Player.Source != null)
                 if (Player.NaturalDuration.HasTimeSpan)
                 {
-                    AppConfigHelper.UpdateKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
-                    if (subItems != null && subItems.Count() > 0) AppConfigHelper.UpdateKey("FileRecordSub-" + nowFileName, nowSubName);
+                    AppConfigHelper.SaveKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
+                    if (subItems != null && subItems.Count() > 0) AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
                 }
                 AppConfigHelper.SaveObj(this);
         }
 
-        private void ListBox_File_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void TreeView_File_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (ListBox_File.SelectedIndex == -1) return;
-
-            OpenMediaFile(List_MediaFiles[ListBox_File.SelectedIndex].FullName);
+            if (TreeView_File.SelectedItem==null) return;
+            string path = (TreeView_File.SelectedItem as CustomNode).FullName;
+            FileInfo fileInfo = new FileInfo(path);
+            if ((fileInfo.Attributes & FileAttributes.Directory) == 0)
+            {
+                if (supportedVideos.Contains(fileInfo.Extension.ToLower()))
+                    OpenMediaFile(path);
+            }
+            else
+            {
+                OpenFolder(path);
+            }
         }
 
         private void btnScreen_Click(object sender, RoutedEventArgs e)
@@ -577,14 +654,16 @@ namespace WpfVideoPlayer
 
         private void btnLast_Click(object sender, RoutedEventArgs e)
         {
-            if (nowIdx < 1) return;
-            OpenMediaFile(List_MediaFiles[nowIdx - 1].FullName);
+            nowIdx = List_MediaFileNames.IndexOf(nowFileName);
+            if (nowIdx <1) return;
+            OpenMediaFile(List_MediaFileNodes[nowIdx - 1].FullName);
         }
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
-            if (nowIdx > List_MediaFiles.Count-2) return;
-            OpenMediaFile(List_MediaFiles[nowIdx + 1].FullName);
+            nowIdx = List_MediaFileNames.IndexOf(nowFileName);
+            if (nowIdx == List_MediaFileNodes.Count-1) return;
+            OpenMediaFile(List_MediaFileNodes[nowIdx +1].FullName);
         }
         
 
@@ -703,30 +782,74 @@ namespace WpfVideoPlayer
         #region UI Functions
 
         /// <summary>
-        /// 刷新文件列表
+        /// 加文件夹节点到文件列表
         /// </summary>
         /// <param name="DirctoryName"></param>
-        private void RefreshList(string DirctoryName)
+        private void AddDirectoryToListFile(string DirctoryName)
         {
             try
             {
-                DirectoryInfo Path = new DirectoryInfo(DirctoryName);
-                FileInfo[] Dir = Path.GetFiles("*", SearchOption.AllDirectories);
+                if (List_Dirctory.Contains(DirctoryName)) return;
+                CustomNode node=AddDirectoryToTreeView(DirctoryName);
+                node.IsSelected= true;
+                node.IsExpanded = true;
+                List_Dirctory.Add(DirctoryName);
+            }
+            catch
+            {
+                return;
+            }
+        }
 
-                List_SubFiles.Clear();
-                List_MediaFiles.Clear();
-                List_MediaFileNames.Clear();
-                ListBox_File.Items.Clear();
-                int i = 0;
+        /// <summary>
+        /// 加文件夹节点到文件列表
+        /// </summary>
+        /// <param name="DirctoryName"></param>
+        private CustomNode AddDirectoryToTreeView(string DirctoryName)
+        {
+            try
+            {
+                DirectoryInfo path = new DirectoryInfo(DirctoryName);
+                FileInfo[] Dir = path.GetFiles("*", SearchOption.AllDirectories);
+                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName };
+                int i = List_MediaFileNodes.Count;
                 foreach (FileInfo d in Dir)
                 {
                     if (supportedVideos.Contains(d.Extension.ToLower()))
                     {
-                        ListBox_File.Items.Add(d.Extension.Replace(".", "").ToLower() + "-" + d.Name);
-                        List_MediaFiles.Add(d);
-                        List_MediaFileNames.Add(d.FullName, i);
+                        CustomNode fileNode = new CustomNode() { Name = d.FullName.Remove(0, path.FullName.Length + 1), FullName = d.FullName };
+                        dirNode.Childs.Add(fileNode);
+                        List_MediaFileNodes.Add(fileNode);
+                        List_MediaFileNames.Add(d.FullName);
                         i++;
                     }
+                }
+                TreeView_File.Items.Add(dirNode);
+                return dirNode;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// 刷新文件列表树
+        /// </summary>
+        private void RefreshFileTree()
+        {
+            try
+            {
+                List_SubFiles.Clear();
+                List_MediaFileNodes.Clear();
+                List_MediaFileNames.Clear();
+                CustomNode node;
+                foreach (var d in List_Dirctory)
+                {
+                    node=AddDirectoryToTreeView(d);
+                    node.IsSelected = true;
+                    node.IsExpanded = true;
                 }
             }
             catch
@@ -734,6 +857,7 @@ namespace WpfVideoPlayer
                 return;
             }
         }
+
         /// <summary>
         /// 打印Log信息
         /// </summary>
@@ -756,11 +880,16 @@ namespace WpfVideoPlayer
                 if (playFileFlag)
                 {
                     if (Player.Source != null)
+                    {
+                        nowIdx = List_MediaFileNames.IndexOf(nowFileName);
+                        List_MediaFileNodes[nowIdx].IsUsing = false;
                         if (Player.NaturalDuration.HasTimeSpan)
                         {
-                            AppConfigHelper.UpdateKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
-                            if (subItems != null && subItems.Count() > 0) AppConfigHelper.UpdateKey("FileRecordSub-" + nowFileName, nowSubName);
+                            AppConfigHelper.SaveKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
+                            if (subItems != null && subItems.Count() > 0)
+                                AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
                         }
+                    }
                     SetVideoMode(false);
                     Player.Stop();
                     Player.Close();
@@ -771,15 +900,16 @@ namespace WpfVideoPlayer
                     return;
                 }
                 //更新媒体目录
-                if (!List_MediaFileNames.ContainsKey(fileInfo.FullName))
+                if (!List_MediaFileNames.Contains(fileInfo.FullName))
                 {
-                    defaultDirctory = fileInfo.DirectoryName;
-                    RefreshList(defaultDirctory);
+                    AddDirectoryToListFile(fileInfo.DirectoryName);
                 }
                 label_NowFile.Content = fileInfo.Name;
                 nowFileName = fileInfo.FullName;
                 nowPosition = (int)AppConfigHelper.LoadDouble("FileRecord-"+nowFileName);
-                nowIdx = List_MediaFileNames[fileInfo.FullName];
+                nowIdx = List_MediaFileNames.IndexOf(nowFileName);
+                List_MediaFileNodes[nowIdx].IsUsing = true;
+                
                 Player.LoadedBehavior = MediaState.Manual;
                 Player.Source = new Uri(fileName);
                 Slider_Voice.Value = defaultVoice;
@@ -824,7 +954,7 @@ namespace WpfVideoPlayer
                 btnRight.Visibility = Visibility.Visible;
                 Label_Process.Visibility = Visibility.Visible;
 
-                if (ListBox_File.Visibility == Visibility.Hidden)
+                if (TreeView_File.Visibility == Visibility.Hidden)
                 {
                     btnShowList.Opacity = 0;
                     btnShowList.MouseEnter += Control_MouseEnter;
@@ -842,9 +972,9 @@ namespace WpfVideoPlayer
                 btnStop.IsEnabled = true;
                 if (nowIdx != 0)
                     btnLast.IsEnabled = true;
-                if (nowIdx != List_MediaFiles.Count - 1)
+                if (nowIdx != List_MediaFileNodes.Count - 1)
                     btnNext.IsEnabled = true;
-                ListBox_File.Margin = new Thickness(ListBox_File.Margin.Left, 0, ListBox_File.Margin.Right, 0);
+                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, 0, TreeView_File.Margin.Right, 0);
                 //panel1.Visible = true;
                 //btn_OpenFile.Visible = false;
             }
@@ -883,10 +1013,9 @@ namespace WpfVideoPlayer
                 }
                 else
                 {
-                    defaultDirctory = folderName;
-                    RefreshList(defaultDirctory);
+                    AddDirectoryToListFile(folderName);
                     if (List_MediaFileNames.Count() > 0)
-                        OpenMediaFile(List_MediaFileNames.First().Key);
+                        OpenMediaFile(List_MediaFileNames.First());
                 }
             }
             catch
@@ -955,9 +1084,9 @@ namespace WpfVideoPlayer
 
             if (flag)
             {
-                ListBox_File.Visibility = Visibility.Visible;
+                TreeView_File.Visibility = Visibility.Visible;
                 btnShowList.Margin = new Thickness(btnShowList.Margin.Left,
-                    btnShowList.Margin.Top, ListBox_File.Width + ListBox_File.Margin.Right, btnShowList.Margin.Bottom);
+                    btnShowList.Margin.Top, TreeView_File.Width + TreeView_File.Margin.Right, btnShowList.Margin.Bottom);
                 btnShowList.Content = ">";
 
                 btnShowList.Opacity = 1;
@@ -979,7 +1108,7 @@ namespace WpfVideoPlayer
                     Canvas_Top.Visibility = Visibility.Visible;
                     Gird_Menu.Visibility = Visibility.Visible;
                 }
-                ListBox_File.Visibility = Visibility.Hidden;
+                TreeView_File.Visibility = Visibility.Hidden;
                 btnShowList.Margin = new Thickness(btnShowList.Margin.Left,
                     btnShowList.Margin.Top, 0, btnShowList.Margin.Bottom);
                 btnShowList.Content = "<";

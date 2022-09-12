@@ -25,9 +25,35 @@
 
         <MediaElement x:Name="Player" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel" Opacity="0.95">
         </MediaElement>
-        <Button x:Name="btnShowList" Content="&gt;" Margin="0,0,273,0" VerticalAlignment="Center" Background="#7F000000" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" HorizontalAlignment="Right" Width="20" Height="180" Focusable="False" Cursor="Hand"/>
-        
-        <ListBox x:Name="ListBox_File" Margin="0,60,0,76" RenderTransformOrigin="0.497,0.48" Background="#CC373838" HorizontalAlignment="Right" Width="272" MouseDoubleClick="ListBox_File_MouseDoubleClick" Foreground="#FFB1B1B1" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ToolTip="{Binding SelectedItem, ElementName=ListBox_File}" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0"  />
+        <Button x:Name="btnShowList" Content="&gt;" Margin="0,0,273,0" VerticalAlignment="Center" Background="#7F000000" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" HorizontalAlignment="Right" Width="20" Height="100" Focusable="False" Cursor="Hand"/>
+
+        <TreeView x:Name="TreeView_File" Margin="0,60,0,76"  Background="#CC373838" HorizontalAlignment="Right" Width="290" MouseDoubleClick="TreeView_File_MouseDoubleClick" Foreground="#FFB1B1B1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0"  >
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type local:CustomNode}" ItemsSource="{Binding Childs}">
+                    <TextBlock Text="{Binding Name}" Foreground="White" >
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Background" Value="Gray"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsUsing}" Value="True">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                    <Setter Property="ToolTip" Value="{Binding Name}"/>
+                </Style>
+            </TreeView.ItemContainerStyle>
+        </TreeView>
         <Canvas x:Name="Canvas_File" Margin="0,0,0,0" Height="40" HorizontalAlignment="Center" Width="190" VerticalAlignment="Center">
             <Button x:Name="btnOpenFile" Content="打开文件" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Foreground="White" Click="btnOpenFile_Click" Focusable="False" Cursor="Hand"/>
             <Button x:Name="btnDown" Content="▼" Canvas.Left="78" Width="28" Background="#FF0E0E0E" Foreground="White" Click="btnDown_Click" Focusable="False" Cursor="Hand"/>

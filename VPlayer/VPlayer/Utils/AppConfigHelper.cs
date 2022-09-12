@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Text;
+using System.Linq;
 
 namespace Utils
 {
     public class AppConfigHelper
     {
 
-        public static void UpdateKey(string key, string value)
+        const string spliter = @"; ";
+
+        public static void SaveKey(string key, string value)
         {
             try
             {
@@ -38,6 +41,37 @@ namespace Utils
         }
 
         /// <summary>
+        /// 保存List<string>
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="listStr"></param>
+        /// <returns></returns>
+        public static bool SaveStringList(string key,List<string> listStr)
+        {
+            string value="";
+            foreach (string ls in listStr)
+            {
+                value += ls+ spliter;
+            }
+            SaveKey(key, value);
+            return true;
+        }
+        /// <summary>
+        /// 读取List<string>
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="listStr"></param>
+        /// <returns></returns>
+        public static List<string> LoadStringList(string key)
+        {
+            List<string> listStr = new List<string>();
+            string value =LoadKey(key);
+            listStr = value.Split(new[] { spliter }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            return listStr;
+        }
+
+        /// <summary>
         /// 保存类内所有int,double,bool,string public变量
         /// </summary>
         /// <param name="obj"></param>
@@ -50,7 +84,9 @@ namespace Utils
             foreach (System.Reflection.FieldInfo fi in infos)
             {
                 if(types.Contains(fi.FieldType.Name))
-                    UpdateKey(obj.GetType().ToString() + "-" + fi.Name, fi.GetValue(obj).ToString());
+                    SaveKey(obj.GetType().ToString() + "-" + fi.Name, fi.GetValue(obj).ToString());
+                if (fi.FieldType.Name == "List`1")
+                    SaveStringList(obj.GetType().ToString() + "-" + fi.Name, fi.GetValue(obj) as List<string>);
             }
             return true;
         }
@@ -91,6 +127,10 @@ namespace Utils
                     case "String":
                         string tempString = LoadKey(obj.GetType().ToString() + "-" + fi.Name);
                         fi.SetValue(obj, tempString);
+                        break;
+                    case "List`1":
+                        List<string> tempStringList = LoadStringList(obj.GetType().ToString() + "-" + fi.Name);
+                        fi.SetValue(obj, tempStringList);
                         break;
                     default:
                         break;
