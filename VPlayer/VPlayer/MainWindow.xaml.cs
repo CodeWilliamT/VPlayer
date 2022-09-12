@@ -841,6 +841,7 @@ namespace WpfVideoPlayer
         {
             try
             {
+                TreeView_File.Items.Clear();
                 List_SubFiles.Clear();
                 List_MediaFileNodes.Clear();
                 List_MediaFileNames.Clear();
@@ -1013,9 +1014,10 @@ namespace WpfVideoPlayer
                 }
                 else
                 {
+                    int idx = List_MediaFileNodes.Count;
                     AddDirectoryToListFile(folderName);
-                    if (List_MediaFileNames.Count() > 0)
-                        OpenMediaFile(List_MediaFileNames.First());
+                    if (List_MediaFileNodes.Count> idx)
+                        OpenMediaFile(List_MediaFileNodes[idx].FullName);
                 }
             }
             catch
@@ -1198,6 +1200,13 @@ namespace WpfVideoPlayer
             }
             btnScreen.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/Images/Screen.png")));
             isWindowMax = !isWindowMax;
+        }
+
+        private void menuClearList_Click(object sender, RoutedEventArgs e)
+        {
+            System.IO.File.Delete(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".exe.Config");
+            List_Dirctory.Clear();
+            RefreshFileTree();
         }
 
 

@@ -55,6 +55,12 @@
                     <Setter Property="ToolTip" Value="{Binding Name}"/>
                 </Style>
             </TreeView.ItemContainerStyle>
+
+            <TreeView.ContextMenu>
+                <ContextMenu MouseMove="Grid_Form_MouseMove">
+                    <MenuItem Name="menuClearList" Header="清空播放记录" Click="menuClearList_Click"/>
+                </ContextMenu>
+            </TreeView.ContextMenu>
         </TreeView>
         <Canvas x:Name="Canvas_File" Margin="0,0,0,0" Height="40" HorizontalAlignment="Center" Width="190" VerticalAlignment="Center">
             <Button x:Name="btnOpenFile" Content="打开文件" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Foreground="White" Click="btnOpenFile_Click" Focusable="False" Cursor="Hand"/>
