@@ -58,6 +58,7 @@
 
             <TreeView.ContextMenu>
                 <ContextMenu MouseMove="Grid_Form_MouseMove">
+                    <MenuItem Name="menuDeleteDirNode" Header="删除当前节点目录" Click="menuDeleteDirNode_Click" />
                     <MenuItem Name="menuClearList" Header="清空播放记录" Click="menuClearList_Click"/>
                 </ContextMenu>
             </TreeView.ContextMenu>
@@ -68,42 +69,44 @@
             <Button x:Name="btnOpenFolder" Content="打开文件夹" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="106" RenderTransformOrigin="0.491,0.5" Background="#FF0E0E0E" Foreground="White" Canvas.Top="18" Height="20" Visibility="Visible" Click="btnOpenFolder_Click" Focusable="False" Cursor="Hand"/>
 
         </Canvas>
-        <Canvas x:Name="Canvas_Top" Height="60" VerticalAlignment="Top">
-            <Label x:Name="label_NowFile" Content="VPlayer By WilliamT" Canvas.Top="0" Foreground="White" Width="{Binding Width, ElementName=formWindow}" Height="57"/>
-            <Button x:Name="btnTop" Content="" Canvas.Right="100" Width="25" Canvas.Top="2" Style="{StaticResource CustomButton}" Height="25" Click="btnTop_Click" VerticalAlignment="Top" Focusable="False"  HorizontalAlignment="Right" Cursor="Hand" >
-                <Button.Background>
-                    <ImageBrush ImageSource="Images/Top.png"/>
-                </Button.Background>
-            </Button>
-            <Button x:Name="btnMin" Content="" Canvas.Right="70" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnMin_Click" Focusable="False" Height="25" Cursor="Hand">
-                <Button.Background>
-                    <ImageBrush ImageSource="Images/Min.png"/>
-                </Button.Background>
-            </Button>
-            <Button x:Name="btnMax" Content="" Canvas.Right="40" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnMax_Click" Focusable="False" Height="25" Cursor="Hand">
-                <Button.Background>
-                    <ImageBrush ImageSource="Images/Max.png"/>
-                </Button.Background>
-            </Button>
-            <Button x:Name="btnClose" Content="" Canvas.Right="10" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnClose_Click" Height="25" Focusable="False" Cursor="Hand">
-                <Button.Background>
-                    <ImageBrush ImageSource="Images/Close.png"/>
-                </Button.Background>
-            </Button>
-            <Button x:Name="btnOpenFile_Copy" Content="" Canvas.Right="125" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnOpenFile_Click"  Height="25" HorizontalAlignment="Right" Focusable="False" Cursor="Hand" >
-                <Button.Background>
-                    <ImageBrush ImageSource="Images/OpenFile.png"/>
-                </Button.Background>
-            </Button>
-            <Label x:Name="label_time" Content="XX:XX:XX" Foreground="White" Canvas.Right="165"  HorizontalAlignment="Right" VerticalAlignment="Top"/>
-        </Canvas>
+        <Grid x:Name="Grid_Top" Height="60" VerticalAlignment="Top">
+            <Canvas x:Name="Canvas_Top" Height="35" VerticalAlignment="Top" Background="#7F000000">
+                <Label x:Name="label_NowFile" Content="VPlayer By WilliamT" Canvas.Top="0" Foreground="White" Width="{Binding Width, ElementName=formWindow}" Height="57"/>
+                <Button x:Name="btnTop" Content="" Canvas.Right="100" Width="25" Canvas.Top="2" Style="{StaticResource CustomButton}" Height="25" Click="btnTop_Click" VerticalAlignment="Top" Focusable="False"  HorizontalAlignment="Right" Cursor="Hand" >
+                    <Button.Background>
+                        <ImageBrush ImageSource="Images/Top.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="btnMin" Content="" Canvas.Right="70" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnMin_Click" Focusable="False" Height="25" Cursor="Hand">
+                    <Button.Background>
+                        <ImageBrush ImageSource="Images/Min.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="btnMax" Content="" Canvas.Right="40" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnMax_Click" Focusable="False" Height="25" Cursor="Hand">
+                    <Button.Background>
+                        <ImageBrush ImageSource="Images/Max.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="btnClose" Content="" Canvas.Right="10" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnClose_Click" Height="25" Focusable="False" Cursor="Hand">
+                    <Button.Background>
+                        <ImageBrush ImageSource="Images/Close.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="btnOpenFile_Copy" Content="" Canvas.Right="125" Canvas.Top="2" Width="25" Style="{StaticResource CustomButton}" Click="btnOpenFile_Click"  Height="25" HorizontalAlignment="Right" Focusable="False" Cursor="Hand" >
+                    <Button.Background>
+                        <ImageBrush ImageSource="Images/OpenFile.png"/>
+                    </Button.Background>
+                </Button>
+                <Label x:Name="label_time" Content="XX:XX:XX" Foreground="White" Canvas.Right="165"  HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            </Canvas>
+        </Grid>
         <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
         <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
         <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
         <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
         <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
         <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,60" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="White" FontSize="17" TextAlignment="Center" FontWeight="Bold"/>
-        <Grid x:Name="Gird_Menu" Margin="0" Height="80" VerticalAlignment="Bottom" Opacity="0.95">
+        <Grid x:Name="Grid_Menu" Margin="0" Height="80" VerticalAlignment="Bottom" Opacity="0.95" Background="#7F000000">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>

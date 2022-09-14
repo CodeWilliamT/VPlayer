@@ -190,7 +190,7 @@ namespace WpfVideoPlayer
         public static extern bool GetCursorPos(out POINT pt);
         public void SetupUI()
         {
-            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right,  Gird_Menu.Height);
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right,  Grid_Menu.Height);
             //异常处理
             System.Windows.Forms.Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             System.Windows.Forms.Application.ThreadException += Application_ThreadException;
@@ -406,7 +406,7 @@ namespace WpfVideoPlayer
         private void Menu_MouseEnter(object sender, EventArgs e)
         {
             Canvas_Top.Opacity = 1;
-            Gird_Menu.Opacity = 1;
+            Grid_Menu.Opacity = 1;
             btnShowList.Opacity = 1;
             //panel.IsEnabled = true;
 
@@ -415,7 +415,7 @@ namespace WpfVideoPlayer
         private void Menu_MouseLeave(object sender, EventArgs e)
         {
             Canvas_Top.Opacity = 0;
-            Gird_Menu.Opacity = 0;
+            Grid_Menu.Opacity = 0;
             if(TreeView_File.Visibility == Visibility.Hidden)
                 btnShowList.Opacity = 0;
             Task.Run(new Action(() =>
@@ -547,12 +547,12 @@ namespace WpfVideoPlayer
             btnShowList.Opacity = 1;
             btnShowList.MouseEnter -= Control_MouseEnter;
             btnShowList.MouseLeave -= Control_MouseLeave;
-            SetPanelMotionVisible(Canvas_Top, false);
-            SetPanelMotionVisible(Gird_Menu, false);
+            SetPanelMotionVisible(Grid_Top, false);
+            SetPanelMotionVisible(Grid_Menu, false);
             Canvas_File.Visibility = Visibility.Visible;
             btnLast.IsEnabled = false;
             btnNext.IsEnabled = false;
-            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right, Gird_Menu.Height);
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right, Grid_Menu.Height);
         }
 
         private void formWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -779,7 +779,77 @@ namespace WpfVideoPlayer
             }
         }
 
+
+        private void Player_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            int val = (int)Slider_Voice.Value + e.Delta / 24;
+            Slider_Voice.Value = val < 0 ? 0 : val > 100 ? 100 : val;
+        }
+
+        private void menuClearList_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (CustomNode it in TreeView_File.Items)
+            {
+                DeleteDirNodeRecord(it);
+            }
+            TreeView_File.Items.Clear();
+            List_Dirctory.Clear();
+            RefreshFileTree();
+        }
+
+        private void menuDeleteDirNode_Click(object sender, RoutedEventArgs e)
+        {
+            List<CustomNode> readyToDel = new List<CustomNode>();
+            foreach (CustomNode it in TreeView_File.Items)
+            {
+                if (it.IsSelected)
+                {
+                    readyToDel.Add(it);
+                    continue;
+                }
+                foreach (CustomNode child in it.Childs)
+                {
+                    if (child.IsSelected)
+                    {
+                        readyToDel.Add(it);
+                        break;
+                    }
+                }
+            }
+            if(readyToDel.Count==0)
+            {
+                System.Windows.MessageBox.Show("未选中节点,无法删除");
+            }    
+            foreach (CustomNode it in readyToDel)
+            {
+                DeleteDirNodeRecord(it);
+                TreeView_File.Items.Remove(it);
+                List_Dirctory.Remove(it.FullName);
+            }
+            RefreshFileTree();
+        }
+
+
         #region UI Functions
+
+        /// <summary>
+        /// 删除文件夹节点下文件的播放记录
+        /// </summary>
+        /// <param name="DirNd"></param>
+        private void DeleteDirNodeRecord(CustomNode DirNd)
+        {
+            try
+            {
+                foreach (CustomNode child in DirNd.Childs)
+                {
+                    AppConfigHelper.SaveKey("FileRecord-" + child.FullName, "0.0");
+                }
+            }
+            catch
+            {
+                return;
+            }
+        }
 
         /// <summary>
         /// 加文件夹节点到文件列表
@@ -964,10 +1034,10 @@ namespace WpfVideoPlayer
                 else
                 {
                     Canvas_Top.Visibility = Visibility.Hidden;
-                    Gird_Menu.Visibility = Visibility.Hidden;
+                    Grid_Menu.Visibility = Visibility.Hidden;
                 }
-                SetPanelMotionVisible(Canvas_Top, true);
-                SetPanelMotionVisible(Gird_Menu, true);
+                SetPanelMotionVisible(Grid_Top, true);
+                SetPanelMotionVisible(Grid_Menu, true);
                 ShowList(false);
                 Canvas_File.Visibility = Visibility.Hidden;
                 btnStop.IsEnabled = true;
@@ -1077,6 +1147,9 @@ namespace WpfVideoPlayer
                 panel.MouseLeave -= Menu_MouseLeave;
             }
         }
+
+
+
         /// <summary>
         /// 显示文件列表
         /// </summary>
@@ -1097,7 +1170,7 @@ namespace WpfVideoPlayer
                 if (playFileFlag)
                 {
                     Canvas_Top.Visibility = Visibility.Hidden;
-                    Gird_Menu.Visibility = Visibility.Hidden;
+                    Grid_Menu.Visibility = Visibility.Hidden;
                 }
             }
             else
@@ -1108,19 +1181,13 @@ namespace WpfVideoPlayer
                     btnShowList.MouseEnter += Control_MouseEnter;
                     btnShowList.MouseLeave += Control_MouseLeave;
                     Canvas_Top.Visibility = Visibility.Visible;
-                    Gird_Menu.Visibility = Visibility.Visible;
+                    Grid_Menu.Visibility = Visibility.Visible;
                 }
                 TreeView_File.Visibility = Visibility.Hidden;
                 btnShowList.Margin = new Thickness(btnShowList.Margin.Left,
                     btnShowList.Margin.Top, 0, btnShowList.Margin.Bottom);
                 btnShowList.Content = "<";
             }
-        }
-
-        private void Player_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            int val = (int)Slider_Voice.Value+e.Delta/24;
-            Slider_Voice.Value = val < 0 ? 0 : val > 100 ? 100 : val;
         }
 
         /// <summary>
@@ -1200,13 +1267,6 @@ namespace WpfVideoPlayer
             }
             btnScreen.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/Images/Screen.png")));
             isWindowMax = !isWindowMax;
-        }
-
-        private void menuClearList_Click(object sender, RoutedEventArgs e)
-        {
-            System.IO.File.Delete(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + ".exe.Config");
-            List_Dirctory.Clear();
-            RefreshFileTree();
         }
 
 
