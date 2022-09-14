@@ -149,7 +149,7 @@ namespace WpfVideoPlayer
             ".ram",".rm",".rmvb",".rpm",".rt",".smil",".scm",".m1v",".m2v",".m2p",".m2ts",".mp2v",".mpe",".mpeg",".mpeg1",".mpeg2",".mpg",".mpv2",".pva",".tp",
             ".tpr",".ts",".m4b",".m4r",".m4p",".m4v",".mp4",".mpeg4",".3g2",".3gp",".3gp2",".3gpp",".mov",".qt",".flv",".f4v",".swf",".hlv",".vob",
             ".amv",".csf",".divx",".evo",".mkv",".mod",".pmp",".vp6",".bik",".mts",".xlmv",".ogm",".ogv",".ogx",
-            ".aac",".ac3",".acc",".aiff",".ape",".au",".cda",".dts",".flac",".m1a",".m2a",".m4a",".mka",".mp2",".mp3",".mpa",".mpc",".ra",".tta",".wav",".wma",".wv",".mid",".midi",
+            ".aac",".ac3",".acc",".aiff",".ape",".au",".cda",".dts",".flac",".m1a",".m2a",".m4a",".mka",".mp2",/*".mp3",*/".mpa",".mpc",".ra",".tta",".wav",".wma",".wv",".mid",".midi",
             ".ogg",".oga",".dvd",".vqf"};
 
         List<string> supportedSubs = new List<string>()
@@ -812,6 +812,7 @@ namespace WpfVideoPlayer
             TreeView_File.Items.Clear();
             List_Dirctory.Clear();
             RefreshFileTree();
+            LogInfo("已清空播放记录");
         }
 
         private void menuDeleteDirNode_Click(object sender, RoutedEventArgs e)
@@ -835,8 +836,9 @@ namespace WpfVideoPlayer
             }
             if(readyToDel.Count==0)
             {
-                System.Windows.MessageBox.Show("未选中节点,无法删除");
-            }    
+                LogInfo("未选中节点,无法删除");
+                return;
+            }
             foreach (CustomNode it in readyToDel)
             {
                 DeleteDirNodeRecord(it);
@@ -844,6 +846,22 @@ namespace WpfVideoPlayer
                 List_Dirctory.Remove(it.FullName);
             }
             RefreshFileTree();
+        }
+
+        private void menuSetDefault_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                foreach (string ex in supportedVideos)
+                {
+                    SetFileDefaultApp(ex, System.Windows.Forms.Application.StartupPath);
+                }
+                LogInfo("已被设为默认媒体启动程序");
+            }
+            catch(Exception ex)
+            {
+                LogInfo("设为默认媒体启动程序失败:"+ex.Message);
+            }
         }
 
 
@@ -1328,6 +1346,53 @@ namespace WpfVideoPlayer
                 Player.Pause();
                 btnStart.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/Images/Start.png")));
                 playingFlag = false;
+            }
+        }
+
+        /// <summary>
+		/// 设置文件默认打开程序 前提是程序支持参数启动打开文件
+		/// 特殊说明:txt后缀比较特殊,还需要从注册表修改userchoie的键值才行
+		/// </summary>
+		/// <param name="fileExtension">文件拓展名 示例:'.slnc'</param>
+		/// <param name="appPath">默认程序绝对路径 示例:'c:\\test.exe'</param>
+		/// <param name="fileIconPath">文件默认图标绝对路径 示例:'c:\\test.ico'</param>
+		private void SetFileDefaultApp(string fileExtension, string appPath, string fileIconPath=null)
+        {
+            //slnc示例 注册表中tree node path
+            //|-.slnc				默认		"slncfile"
+            //|--slncfile
+            //|---DefaultIcon		默认		"fileIconPath"			默认图标
+            //|----shell
+            //|-----open
+            //|------command		默认		"fileExtension \"%1\""	默认打开程序路径
+            var fileExtensionKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileExtension);
+            if (fileExtensionKey != null)
+                Microsoft.Win32.Registry.ClassesRoot.DeleteSubKeyTree(fileExtension, false);
+            fileExtensionKey = Microsoft.Win32.Registry.ClassesRoot.CreateSubKey(fileExtension);
+            using (fileExtensionKey)
+            {
+                var fileKeyName = $"{fileExtension.Substring(1)}file";
+                fileExtensionKey.SetValue(null, fileKeyName, Microsoft.Win32.RegistryValueKind.String);
+                using (var fileKey = fileExtensionKey.CreateSubKey(fileKeyName))
+                {
+                    if (fileIconPath != null)
+                    {
+                        using (var defaultIcon = fileKey.CreateSubKey("DefaultIcon"))
+                        {
+                            defaultIcon.SetValue(null, fileIconPath);
+                        }
+                    }
+                    using (var shell = fileKey.CreateSubKey("shell"))
+                    {
+                        using (var open = shell.CreateSubKey("open"))
+                        {
+                            using (var command = open.CreateSubKey("command"))
+                            {
+                                command.SetValue(null, $"{appPath} \"%1\"");
+                            }
+                        }
+                    }
+                }
             }
         }
         #endregion
