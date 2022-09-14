@@ -36,11 +36,11 @@
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                         <Setter Property="Background" Value="Gray"/>
                                     </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsRecorded}" Value="True">
+                                        <Setter Property="Foreground" Value="LightGray"/>
+                                    </DataTrigger>
                                     <DataTrigger Binding="{Binding IsUsing}" Value="True">
                                         <Setter Property="Foreground" Value="SkyBlue"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsUsing}" Value="False">
-                                        <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -53,6 +53,7 @@
                     <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
                     <Setter Property="ToolTip" Value="{Binding Name}"/>
+                    <Setter Property="Foreground" Value="White"/>
                 </Style>
             </TreeView.ItemContainerStyle>
 

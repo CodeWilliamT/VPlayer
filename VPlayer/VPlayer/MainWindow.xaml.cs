@@ -20,6 +20,7 @@ using Utils;
 using System.Threading;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace WpfVideoPlayer
 {
@@ -78,6 +79,22 @@ namespace WpfVideoPlayer
                 }
             }
         }
+
+
+        private bool isRecorded;
+        public bool IsRecorded
+        {
+            get { return this.isRecorded; }
+            set
+            {
+                if (value != this.isRecorded)
+                {
+                    this.isRecorded = value;
+                    NotifyPropertyChanged("IsRecorded");
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(string propName)
         {
@@ -888,6 +905,8 @@ namespace WpfVideoPlayer
                     if (supportedVideos.Contains(d.Extension.ToLower()))
                     {
                         CustomNode fileNode = new CustomNode() { Name = d.FullName.Remove(0, path.FullName.Length + 1), FullName = d.FullName };
+                        int record = (int)AppConfigHelper.LoadDouble("FileRecord-" + d.FullName);
+                        fileNode.IsRecorded = record > 0;
                         dirNode.Childs.Add(fileNode);
                         List_MediaFileNodes.Add(fileNode);
                         List_MediaFileNames.Add(d.FullName);
@@ -919,7 +938,6 @@ namespace WpfVideoPlayer
                 foreach (var d in List_Dirctory)
                 {
                     node=AddDirectoryToTreeView(d);
-                    node.IsSelected = true;
                     node.IsExpanded = true;
                 }
             }
@@ -954,6 +972,7 @@ namespace WpfVideoPlayer
                     {
                         nowIdx = List_MediaFileNames.IndexOf(nowFileName);
                         List_MediaFileNodes[nowIdx].IsUsing = false;
+                        List_MediaFileNodes[nowIdx].IsRecorded = true;
                         if (Player.NaturalDuration.HasTimeSpan)
                         {
                             AppConfigHelper.SaveKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
@@ -1038,7 +1057,6 @@ namespace WpfVideoPlayer
                 }
                 SetPanelMotionVisible(Grid_Top, true);
                 SetPanelMotionVisible(Grid_Menu, true);
-                ShowList(false);
                 Canvas_File.Visibility = Visibility.Hidden;
                 btnStop.IsEnabled = true;
                 if (nowIdx != 0)
