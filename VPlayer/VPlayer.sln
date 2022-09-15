@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VPlayer", "VPlayer\VPlayer.
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "VPlayer Installer", "VPlayer Installer\VPlayer Installer.vdproj", "{FF2BD4F0-013F-4A3B-BC51-F85D480197C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetFileDefaultApp", "SetFileDefaultApp\SetFileDefaultApp.csproj", "{017319EA-8091-4F4D-A4BB-5D4D1A2F6909}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{BD72F68A-0F8D-4A17-B61F-A72E33F67416}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FF2BD4F0-013F-4A3B-BC51-F85D480197C1}.Debug|Any CPU.ActiveCfg = Debug
 		{FF2BD4F0-013F-4A3B-BC51-F85D480197C1}.Release|Any CPU.ActiveCfg = Release
+		{017319EA-8091-4F4D-A4BB-5D4D1A2F6909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{017319EA-8091-4F4D-A4BB-5D4D1A2F6909}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{017319EA-8091-4F4D-A4BB-5D4D1A2F6909}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{017319EA-8091-4F4D-A4BB-5D4D1A2F6909}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
