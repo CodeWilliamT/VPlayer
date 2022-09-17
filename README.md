@@ -15,6 +15,7 @@
 欢迎反馈在Github Issue上进行或发送电子邮件至william_twl@qq.com.
 
 
+使用该播放器需要打开Windows Media PLayer功能。
 
 如何打开该功能？
 
@@ -49,7 +50,10 @@ so it use low resource on Windows OS to get high qulity video expenriment.
 Welcome to feedback issues on Github Issue or sent e-mail to william_twl@qq.com.
 
 
-How to open that feature?
+To use that app needs to enable Windows Media PLayer feature.
+
+How to enable that feature?
+
 Windows Setting→Apps→Optional features→Add a feature→
 
 SelectWindows Media Player→Install
