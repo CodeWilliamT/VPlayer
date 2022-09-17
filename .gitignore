@@ -36,6 +36,8 @@
 **/arm/
 **/arm64/
 **/debug/
+**/Release/
+**/Bin/
 **/versions/
 **/out/
 **/Obj/

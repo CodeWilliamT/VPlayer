@@ -21,14 +21,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_70F61697069CFF73013A798235D1182E"
+        "OwnerKey" = "8:_00448C7A094F47A68F59F4AAB76FBFF3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_C579A05298F77FFD3D57567B97C70A6E"
-        "OwnerKey" = "8:_00448C7A094F47A68F59F4AAB76FBFF3"
+        "MsmKey" = "8:_C933DB43AD3342D492E2279995879112"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -46,7 +52,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C579A05298F77FFD3D57567B97C70A6E"
+        "OwnerKey" = "8:_70F61697069CFF73013A798235D1182E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -150,34 +156,14 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
-            {
-            "SourcePath" = "8:..\\VPlayer\\bin\\Debug\\AppIcon.ico"
-            "TargetName" = "8:AppIcon.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C579A05298F77FFD3D57567B97C70A6E"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_70F61697069CFF73013A798235D1182E"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:SetFileDefaultApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_C579A05298F77FFD3D57567B97C70A6E"
+                    "_70F61697069CFF73013A798235D1182E"
                     {
                     "Name" = "8:SetFileDefaultApp.exe"
                     "Attributes" = "3:512"
@@ -199,6 +185,46 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
+            {
+            "SourcePath" = "8:..\\VPlayer\\bin\\Debug\\AppIcon.ico"
+            "TargetName" = "8:AppIcon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C933DB43AD3342D492E2279995879112"
+            {
+            "SourcePath" = "8:Extensions\\Microsoft.HEVCVideoExtensions_2.0.51122.0_x64__8wekyb3d8bbwe.Appx"
+            "TargetName" = "8:Microsoft.HEVCVideoExtensions_2.0.51122.0_x64__8wekyb3d8bbwe.Appx"
+            "Tag" = "8:"
+            "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E277DD927EC8D59B67B94C1566EE6211"
@@ -838,7 +864,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_00448C7A094F47A68F59F4AAB76FBFF3"
             {
-            "SourcePath" = "8:..\\VPlayer\\obj\\Debug\\VPlayer.exe"
+            "SourcePath" = "8:..\\VPlayer\\obj\\Release\\VPlayer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
