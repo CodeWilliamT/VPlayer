@@ -76,7 +76,7 @@
                 <ColumnDefinition Width="270" />
             </Grid.ColumnDefinitions>
 
-            <Button x:Name="btnShowList"  Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="#7F000000" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" Width="20" Height="100" Focusable="False" Cursor="Hand"/>
+            <Button x:Name="btnShowList"  Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="#7F000000" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" Width="25" Height="130" Focusable="False" Cursor="Hand"/>
 
             <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC373838" HorizontalAlignment="Stretch" />
             <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC373838" MouseDoubleClick="TreeView_File_MouseDoubleClick" Foreground="#FFB1B1B1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0"  >

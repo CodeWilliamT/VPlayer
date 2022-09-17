@@ -23,17 +23,23 @@ namespace SetFileDefaultApp
         };
         static void Main(string[] args)
         {
-            string AppPath = @"C:\Users\me\source\repos\Weiliang Tong\VPlayer\VPlayer\VPlayer\bin\Debug\VPlayer.exe";//args[0];
-            FileInfo appInfo=new FileInfo(AppPath);
-            //MessageBox.Show(AppPath+"\n"+IcoPath);
+            string AppPath ="";
+            int i=0;
+            foreach(string a in args)
+            {
+                if (i > 0) AppPath += " ";
+                AppPath += a;
+                i++;
+            }
             try
             {
                 foreach(string ex in Extensions)
                 {
-                    SetFileDefaultApp(ex, AppPath);
+                    SetFileDefaultApp(ex.ToLower(), AppPath);
                 }
 
-                SHChangeNotify(0x08000000, 0x0000, IntPtr.Zero, IntPtr.Zero);
+                //this call notifies Windows that it needs to redo the file associations and icons
+                SHChangeNotify(0x08000000, 0x2000, IntPtr.Zero, IntPtr.Zero);
             }
             catch(Exception ex)
             {
@@ -49,6 +55,7 @@ namespace SetFileDefaultApp
         /// </summary>
         /// <param name="fileExtension">文件拓展名 示例:'.slnc'</param>
         /// <param name="appPath">默认程序绝对路径 示例:'c:\\test.exe'</param>
+        /// <param name="friendlyAppName">文件默认图标绝对路径 示例:'test'</param>
         /// <param name="fileIconPath">文件默认图标绝对路径 示例:'c:\\test.ico'</param>
         private static void SetFileDefaultApp(string fileExtension, string appPath, string fileIconPath = null)
         {
@@ -59,49 +66,64 @@ namespace SetFileDefaultApp
             //|----shell
             //|-----open
             //|------command		默认		"fileExtension \"%1\""	默认打开程序路径
+            FileInfo appInfo = new FileInfo(appPath);
+            string friendlyAppName = appInfo.Name.Substring(0, appInfo.Name.Length - appInfo.Extension.Length);
             var fileExtensionKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileExtension);
             if (fileExtensionKey != null)
-                Microsoft.Win32.Registry.ClassesRoot.DeleteSubKeyTree(fileExtension, false);
+                Registry.ClassesRoot.DeleteSubKeyTree(fileExtension, false);
             fileExtensionKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Classes\\" + fileExtension);
             if (fileExtensionKey != null)
-                Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree("Software\\Classes\\" + fileExtension, false);
-            string filetype = $"{fileExtension.Substring(1)}_file";
+                Registry.CurrentUser.DeleteSubKeyTree("Software\\Classes\\" + fileExtension, false);
 
-            Registry.SetValue("HKEY_CLASSES_ROOT\\" + fileExtension, "", filetype);
-            Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\" + fileExtension, "", filetype);
-            Registry.SetValue("HKEY_CLASSES_ROOT\\" + filetype + "\\shell\\open\\command", "", "\"" + appPath + "\" \"%1\"");
-            Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\" + filetype + "\\shell\\open\\command", "", "\"" + appPath + "\" \"%1\"");
-            if (fileIconPath != null)
-            {
-                Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\" + filetype + "\\DefaultIcon", "", "\"" + fileIconPath + "\"");
-                Registry.SetValue("HKEY_CLASSES_ROOT\\" + filetype + "\\DefaultIcon", "", "\"" + fileIconPath + "\"");
-            }
-            //this call notifies Windows that it needs to redo the file associations and icons
-            SHChangeNotify(0x08000000, 0x2000, IntPtr.Zero, IntPtr.Zero);
+            string fileType = fileExtension.Substring(1);
+            string fileTypeNodeName = fileType + "_aoto_file";
+            string systemClassName = "HKEY_CLASSES_ROOT\\";
+            string currentUserClassName = "HKEY_CURRENT_USER\\Software\\Classes\\";
+            string currentUserClassApplicationsAppName = currentUserClassName+ "Applications\\"+appInfo.Name+"\\";
 
-            //var fileExtensionKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileExtension);
-            //if (fileExtensionKey != null)
-            //    Microsoft.Win32.Registry.ClassesRoot.DeleteSubKeyTree(fileExtension, false);
-            //fileExtensionKey = Microsoft.Win32.Registry.ClassesRoot.CreateSubKey(fileExtension);
-            //using (fileExtensionKey)
+            string ApplicationAssociationToastsName = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\ApplicationAssociationToasts\\";
+            string User_Explorer = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"+fileExtension;
+
+            string soc = "\\shell\\open\\command";
+
+
+            //Set ApplicationAssociationToast Associate Node & Path
+            Registry.SetValue(ApplicationAssociationToastsName, fileTypeNodeName + fileExtension, 0);
+            Registry.SetValue(ApplicationAssociationToastsName, "Applications\\" + friendlyAppName + "_" + fileExtension, 0);
+            //Set ExtensionNode with OpenPathNode
+            Registry.SetValue(systemClassName + fileExtension, "", fileTypeNodeName);
+            Registry.SetValue(currentUserClassName + fileExtension, "", fileTypeNodeName);
+            //Set OpenPathNode with OpenAppPath
+            Registry.SetValue(systemClassName + fileTypeNodeName + soc, "", "\"" + appPath + "\" \"%1\"");
+            Registry.SetValue(currentUserClassName + fileTypeNodeName + soc, "", "\"" + appPath + "\" \"%1\"");
+            Registry.SetValue(currentUserClassApplicationsAppName + soc, "", "\"" + appPath + "\" \"%1\"");
+
+            //Set OpenAppPath.FriendlyAppName with FriendlyAppName
+            Registry.SetValue(systemClassName +"Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache", appPath + ".FriendlyAppName", friendlyAppName);
+            Registry.SetValue(currentUserClassName + "\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache", appPath + ".FriendlyAppName", friendlyAppName);
+
+
+            Registry.SetValue("HKEY_CURRENT_USER\\"+User_Explorer + "\\OpenWithList","a", friendlyAppName);
+            Registry.SetValue("HKEY_CURRENT_USER\\"+User_Explorer + "\\OpenWithProgids",fileTypeNodeName, "0");
+
+
+            //using (RegistryKey User_ExplorerKey = Registry.CurrentUser.OpenSubKey(User_Explorer))
             //{
-            //    var fileKeyName = $"{fileExtension.Substring(1)}_file";
-            //    fileExtensionKey.SetValue("", fileKeyName, Microsoft.Win32.RegistryValueKind.String);//Class- .xxx- default=xxxfile
-            //    using (var fileKey = Microsoft.Win32.Registry.ClassesRoot.CreateSubKey(fileKeyName))
+            //    using (RegistryKey User_Choice = User_ExplorerKey.OpenSubKey("UserChoice"))
             //    {
-            //        if (fileIconPath != null)
-            //        {
-            //            using (var defaultIcon = fileKey.CreateSubKey("DefaultIcon"))
-            //            {
-            //                defaultIcon.SetValue("", "\""+fileIconPath+"\"");//Class- .xxx- xxxfile- default=IconPath
-            //            }
-            //        }
-            //        using (var command = fileKey.CreateSubKey(fileKeyName+"\\shell\\open\\command"))
-            //        {
-            //            command.SetValue("", "\"" + appPath + "\" \"%1\"");//Class- .xxx- xxxfile- shell- open- command
-            //        }
+            //        if (User_Choice != null) 
+            //            User_ExplorerKey.DeleteSubKey("UserChoice");
+            //        Registry.SetValue("HKEY_CURRENT_USER\\" + User_Explorer + "UserChoice", "ProgId", "Applications\\" + friendlyAppName);
             //    }
             //}
+
+            //Set Icon Path
+            if (fileIconPath != null)
+            {
+                Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\" + fileTypeNodeName + "\\DefaultIcon", "", "\"" + fileIconPath + "\"");
+                Registry.SetValue("HKEY_CLASSES_ROOT\\" + fileTypeNodeName + "\\DefaultIcon", "", "\"" + fileIconPath + "\"");
+            }
+
         }
 
     }

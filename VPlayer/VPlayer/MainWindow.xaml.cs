@@ -132,7 +132,6 @@ namespace VPlayer
 
         int nowIdx=0;
         bool isWindowMax;
-        float scaleX;
         bool playFileFlag;
         bool playingFlag;
         bool mourseVisible = true;
@@ -828,16 +827,10 @@ namespace VPlayer
 
         private void menuSetDefault_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                string startargs = System.Windows.Forms.Application.ExecutablePath;
-                Process.Start(@"SetFileDefaultApp.exe", startargs);
-                LogInfo("已被设为默认媒体启动程序");
-            }
-            catch(Exception ex)
-            {
-                LogInfo("设为默认媒体启动程序失败:"+ex.Message);
-            }
+            string startargs = System.Windows.Forms.Application.ExecutablePath;
+            Process.Start(@"SetFileDefaultApp.exe", startargs);
+            System.Windows.MessageBox.Show("已关联后缀名。\r\nWin10系统锁定了默认媒体应用注册表，需要用户到\r\n" +
+                "Setting(设置)-Apps(应用)-\r\nDefault apps(默认应用)-Video player(媒体应用)下 再设置为本应用");
         }
 
 
