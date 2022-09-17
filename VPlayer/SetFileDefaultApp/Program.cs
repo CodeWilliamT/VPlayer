@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,7 +12,7 @@ namespace SetFileDefaultApp
 {
     internal class Program
     {
-        static List<string> supportedFiles = new List<string>()
+        static List<string> Extensions = new List<string>()
         { ".asf", ".avi", ".wm", ".wmp", ".wmv",
             ".ram",".rm",".rmvb",".rpm",".rt",".smil",".scm",".m1v",".m2v",".m2p",".m2ts",".mp2v",".mpe",".mpeg",".mpeg1",".mpeg2",".mpg",".mpv2",".pva",".tp",
             ".tpr",".ts",".m4b",".m4r",".m4p",".m4v",".mp4",".mpeg4",".3g2",".3gp",".3gp2",".3gpp",".mov",".qt",".flv",".f4v",".swf",".hlv",".vob",
@@ -22,22 +23,24 @@ namespace SetFileDefaultApp
         };
         static void Main(string[] args)
         {
-            string AppPath = @"C:\Users\v-wetong\source\repos\VPlayer\VPlayer\VPlayer\bin\Debug\VPlayer.exe";//args[0];
+            string AppPath = @"C:\Users\me\source\repos\Weiliang Tong\VPlayer\VPlayer\VPlayer\bin\Debug\VPlayer.exe";//args[0];
             FileInfo appInfo=new FileInfo(AppPath);
-            string IcoPath = appInfo.DirectoryName + "\\AppIcon.ico";
             //MessageBox.Show(AppPath+"\n"+IcoPath);
             try
             {
-                foreach(string ex in supportedFiles)
+                foreach(string ex in Extensions)
                 {
-                    SetFileDefaultApp(ex, AppPath, IcoPath);
+                    SetFileDefaultApp(ex, AppPath);
                 }
+
+                SHChangeNotify(0x08000000, 0x0000, IntPtr.Zero, IntPtr.Zero);
             }
             catch(Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.Message);
             }
         }
+
         [System.Runtime.InteropServices.DllImport("Shell32.dll")]
         private static extern int SHChangeNotify(int eventId, int flags, IntPtr item1, IntPtr item2);
         /// <summary>
@@ -47,7 +50,7 @@ namespace SetFileDefaultApp
         /// <param name="fileExtension">文件拓展名 示例:'.slnc'</param>
         /// <param name="appPath">默认程序绝对路径 示例:'c:\\test.exe'</param>
         /// <param name="fileIconPath">文件默认图标绝对路径 示例:'c:\\test.ico'</param>
-        private static void SetFileDefaultApp(string fileExtension, string appPath, string fileIconPath=null)
+        private static void SetFileDefaultApp(string fileExtension, string appPath, string fileIconPath = null)
         {
             //slnc示例 注册表中tree node path
             //|-.slnc				默认		"slncfile"
@@ -65,8 +68,8 @@ namespace SetFileDefaultApp
             string filetype = $"{fileExtension.Substring(1)}_file";
 
             Registry.SetValue("HKEY_CLASSES_ROOT\\" + fileExtension, "", filetype);
-            Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\"+ fileExtension, "", filetype);
-            Registry.SetValue("HKEY_CLASSES_ROOT\\" + filetype+ "\\shell\\open\\command", "", "\"" + appPath + "\" \"%1\"");
+            Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\" + fileExtension, "", filetype);
+            Registry.SetValue("HKEY_CLASSES_ROOT\\" + filetype + "\\shell\\open\\command", "", "\"" + appPath + "\" \"%1\"");
             Registry.SetValue("HKEY_CURRENT_USER\\Software\\Classes\\" + filetype + "\\shell\\open\\command", "", "\"" + appPath + "\" \"%1\"");
             if (fileIconPath != null)
             {
@@ -100,5 +103,6 @@ namespace SetFileDefaultApp
             //    }
             //}
         }
+
     }
 }

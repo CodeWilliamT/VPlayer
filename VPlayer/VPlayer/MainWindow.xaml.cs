@@ -23,7 +23,7 @@ using System.ComponentModel;
 using System.Xml.Linq;
 using System.Diagnostics;
 
-namespace WpfVideoPlayer
+namespace VPlayer
 {
 
     public class CustomNode: TreeViewItemBase
@@ -35,6 +35,9 @@ namespace WpfVideoPlayer
 
         public string Name { get; set; }
         public string FullName { get; set; }
+        public int Level { get; set; }
+
+        public System.Windows.Controls.ContextMenu ContextMenu { get; set; }
 
         public ObservableCollection<CustomNode> Childs { get; set; }
     }
@@ -118,7 +121,6 @@ namespace WpfVideoPlayer
                 Position = 0;
             }
         }
-
 
 
         string title = "VPlayer By WilliamT";
@@ -208,7 +210,7 @@ namespace WpfVideoPlayer
         public static extern bool GetCursorPos(out POINT pt);
         public void SetupUI()
         {
-            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right,  Grid_Menu.Height);
+            Grid_Center.Margin = new Thickness(Grid_Center.Margin.Left, Canvas_Top.Height, Grid_Center.Margin.Right,  Grid_Menu.Height);
             //异常处理
             System.Windows.Forms.Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             System.Windows.Forms.Application.ThreadException += Application_ThreadException;
@@ -257,6 +259,7 @@ namespace WpfVideoPlayer
             List_MediaFileNames = new List<string>();
             RefreshFileTree();
         }
+
         /// <summary>
         /// 异常处理
         /// </summary>
@@ -493,6 +496,7 @@ namespace WpfVideoPlayer
 
         private void Player_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (Player.Source == null) return;
             btnStart_Click(null, null);
         }
         
@@ -500,28 +504,26 @@ namespace WpfVideoPlayer
 
         private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (Player.Source == null) return;
-            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-            SetVideoMode(true);
+            JumpToSliderPosition();
         }
 
         private void Slider_Process_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            //按住方向的时候
+            if (Player.Source == null) return;
             SetVideoMode(false);
         }
 
         private void Slider_Process_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            //拖动的时候
+            if (Player.Source == null) return;
             SetVideoMode(false);
         }
 
         private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (Player.Source == null) return;
-            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-            SetVideoMode(true);
+            JumpToSliderPosition();
         }
         private void Slider_Vioce_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -570,7 +572,9 @@ namespace WpfVideoPlayer
             Canvas_File.Visibility = Visibility.Visible;
             btnLast.IsEnabled = false;
             btnNext.IsEnabled = false;
-            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, Canvas_Top.Height, TreeView_File.Margin.Right, Grid_Menu.Height);
+
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, 0, TreeView_File.Margin.Right, 0);
+            GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, 0, GridSplitter_List.Margin.Right, 0);
         }
 
         private void formWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -586,7 +590,10 @@ namespace WpfVideoPlayer
                         SetVideoMax(true);
                     break;
                 case Key.Space:
+                    {
+                        if (Player.Source == null) return;
                         btnStart_Click(null, null);
+                    }
                     break;
                 case Key.Up:
                     if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
@@ -806,48 +813,18 @@ namespace WpfVideoPlayer
 
         private void menuClearList_Click(object sender, RoutedEventArgs e)
         {
-            foreach (CustomNode it in TreeView_File.Items)
-            {
-                DeleteDirNodeRecord(it);
-            }
-            TreeView_File.Items.Clear();
-            List_Dirctory.Clear();
-            RefreshFileTree();
-            LogInfo("已清空播放记录");
+            Dispatcher.InvokeAsync(() => {
+                foreach (CustomNode it in TreeView_File.Items)
+                {
+                    DeleteDirNodeRecord(it);
+                }
+                TreeView_File.Items.Clear();
+                List_Dirctory.Clear();
+                RefreshFileTree();
+                LogInfo("已清空播放记录");
+            });
         }
 
-        private void menuDeleteDirNode_Click(object sender, RoutedEventArgs e)
-        {
-            List<CustomNode> readyToDel = new List<CustomNode>();
-            foreach (CustomNode it in TreeView_File.Items)
-            {
-                if (it.IsSelected)
-                {
-                    readyToDel.Add(it);
-                    continue;
-                }
-                foreach (CustomNode child in it.Childs)
-                {
-                    if (child.IsSelected)
-                    {
-                        readyToDel.Add(it);
-                        break;
-                    }
-                }
-            }
-            if(readyToDel.Count==0)
-            {
-                LogInfo("未选中节点,无法删除");
-                return;
-            }
-            foreach (CustomNode it in readyToDel)
-            {
-                DeleteDirNodeRecord(it);
-                TreeView_File.Items.Remove(it);
-                List_Dirctory.Remove(it.FullName);
-            }
-            RefreshFileTree();
-        }
 
         private void menuSetDefault_Click(object sender, RoutedEventArgs e)
         {
@@ -864,25 +841,125 @@ namespace WpfVideoPlayer
         }
 
 
+        private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var treeViewItem = VisualUpwardSearch<TreeViewItem>(e.OriginalSource as DependencyObject) as TreeViewItem;
+            if (treeViewItem != null)
+            {
+                treeViewItem.Focus();
+                e.Handled = true;
+            }
+        }
+
+        private void menuDeleteNodeRecord_Click(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.InvokeAsync(() => {
+                CustomNode node = TreeView_File.SelectedItem as CustomNode;
+                if (node.Level == 0)
+                {
+                    DeleteDirNodeRecord(node);
+                    TreeView_File.Items.Remove(node);
+                    List_Dirctory.Remove(node.FullName);
+                    RefreshFileTree();
+                }
+                if (node.Level> 0)
+                    DeleteFileNodeRecord(node);
+            });
+        }
+
+        private void menuOpenNodeFolder_Click(object sender, RoutedEventArgs e)
+        {
+            string startargs;
+            CustomNode node= TreeView_File.SelectedItem as CustomNode;
+            startargs=node.Level==0? node.FullName: (new FileInfo(node.FullName)).DirectoryName;
+            Process.Start(@"Explorer.exe", startargs);
+        }
+
         #region UI Functions
+        static DependencyObject VisualUpwardSearch<T>(DependencyObject source)
+        {
+            while (source != null && source.GetType() != typeof(T))
+                source = VisualTreeHelper.GetParent(source);
+
+            return source;
+        }
 
         /// <summary>
-        /// 删除文件夹节点下文件的播放记录
+        /// 删除文件夹节点下所有文件的播放记录
         /// </summary>
-        /// <param name="DirNd"></param>
-        private void DeleteDirNodeRecord(CustomNode DirNd)
+        /// <param name="node"></param>
+        private void DeleteDirNodeRecord(CustomNode node)
         {
             try
             {
-                foreach (CustomNode child in DirNd.Childs)
+                foreach (CustomNode child in node.Childs)
                 {
-                    AppConfigHelper.SaveKey("FileRecord-" + child.FullName, "0.0");
+                    DeleteFileNodeRecord(child);
                 }
             }
             catch
             {
                 return;
             }
+        }
+
+
+        /// <summary>
+        /// 删除文件节点的播放记录
+        /// </summary>
+        /// <param name="node"></param>
+        private void DeleteFileNodeRecord(CustomNode node)
+        {
+            try
+            {
+                AppConfigHelper.RemoveKey("FileRecord-" + node.FullName);
+                node.IsRecorded = false;
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        private void AddContextMenuToDirNode(CustomNode customNode)
+        {
+
+            customNode.ContextMenu = new System.Windows.Controls.ContextMenu();
+            System.Windows.Controls.MenuItem menuDeleteDirNodeRecord = new System.Windows.Controls.MenuItem();
+            menuDeleteDirNodeRecord.Header = "删除播放目录";
+            menuDeleteDirNodeRecord.Click += menuDeleteNodeRecord_Click;
+            System.Windows.Controls.MenuItem menuOpenDirNodeFolder = new System.Windows.Controls.MenuItem();
+            menuOpenDirNodeFolder.Header = "打开文件夹";
+            menuOpenDirNodeFolder.Click += menuOpenNodeFolder_Click;
+
+            System.Windows.Controls.MenuItem menuClearDirList = new System.Windows.Controls.MenuItem();
+            menuClearDirList.Header = "清空播放记录";
+            menuClearDirList.Click += menuClearList_Click;
+
+
+            customNode.ContextMenu.Items.Add(menuDeleteDirNodeRecord);
+            customNode.ContextMenu.Items.Add(menuOpenDirNodeFolder);
+            customNode.ContextMenu.Items.Add(menuClearDirList);
+
+        }
+
+        private void AddContextMenuToFileNode(CustomNode customNode)
+        {
+            customNode.ContextMenu = new System.Windows.Controls.ContextMenu();
+            System.Windows.Controls.MenuItem menuDeleteFileNodeRecord = new System.Windows.Controls.MenuItem();
+            menuDeleteFileNodeRecord.Header = "删除播放记录";
+            menuDeleteFileNodeRecord.Click += menuDeleteNodeRecord_Click;
+            System.Windows.Controls.MenuItem menuOpenFileNodeFolder = new System.Windows.Controls.MenuItem();
+            menuOpenFileNodeFolder.Header = "打开文件目录";
+            menuOpenFileNodeFolder.Click += menuOpenNodeFolder_Click;
+
+            System.Windows.Controls.MenuItem menuFileClearList = new System.Windows.Controls.MenuItem();
+            menuFileClearList.Header = "清空播放记录";
+            menuFileClearList.Click += menuClearList_Click;
+            customNode.ContextMenu.Items.Add(menuDeleteFileNodeRecord);
+            customNode.ContextMenu.Items.Add(menuOpenFileNodeFolder);
+            customNode.ContextMenu.Items.Add(menuFileClearList);
+
         }
 
         /// <summary>
@@ -915,13 +992,16 @@ namespace WpfVideoPlayer
             {
                 DirectoryInfo path = new DirectoryInfo(DirctoryName);
                 FileInfo[] Dir = path.GetFiles("*", SearchOption.AllDirectories);
-                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName };
+                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName, Level = 0};
+                AddContextMenuToDirNode(dirNode);
                 int i = List_MediaFileNodes.Count;
                 foreach (FileInfo d in Dir)
                 {
                     if (supportedVideos.Contains(d.Extension.ToLower()))
                     {
-                        CustomNode fileNode = new CustomNode() { Name = d.FullName.Remove(0, path.FullName.Length + 1), FullName = d.FullName };
+                        CustomNode fileNode = new CustomNode() { Name = d.FullName.Remove(0, path.FullName.Length + 1), 
+                            FullName = d.FullName, Level = 1};
+                        AddContextMenuToFileNode(fileNode);
                         int record = (int)AppConfigHelper.LoadDouble("FileRecord-" + d.FullName);
                         fileNode.IsRecorded = record > 0;
                         dirNode.Childs.Add(fileNode);
@@ -940,6 +1020,7 @@ namespace WpfVideoPlayer
         }
 
 
+
         /// <summary>
         /// 刷新文件列表树
         /// </summary>
@@ -954,6 +1035,10 @@ namespace WpfVideoPlayer
                 CustomNode node;
                 foreach (var d in List_Dirctory)
                 {
+                    if (!Directory.Exists(d))
+                    {
+                        continue;
+                    }
                     node=AddDirectoryToTreeView(d);
                     node.IsExpanded = true;
                 }
@@ -1080,7 +1165,8 @@ namespace WpfVideoPlayer
                     btnLast.IsEnabled = true;
                 if (nowIdx != List_MediaFileNodes.Count - 1)
                     btnNext.IsEnabled = true;
-                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, 0, TreeView_File.Margin.Right, 0);
+                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
                 //panel1.Visible = true;
                 //btn_OpenFile.Visible = false;
             }
@@ -1171,13 +1257,11 @@ namespace WpfVideoPlayer
         {
             if (flag)
             {
-                panel.Opacity = 0;
                 panel.MouseEnter += Menu_MouseEnter;
                 panel.MouseLeave += Menu_MouseLeave;
             }
             else
             {
-                panel.Opacity = 1;
                 panel.MouseEnter -= Menu_MouseEnter;
                 panel.MouseLeave -= Menu_MouseLeave;
             }
@@ -1195,8 +1279,8 @@ namespace WpfVideoPlayer
             if (flag)
             {
                 TreeView_File.Visibility = Visibility.Visible;
-                btnShowList.Margin = new Thickness(btnShowList.Margin.Left,
-                    btnShowList.Margin.Top, TreeView_File.Width + TreeView_File.Margin.Right, btnShowList.Margin.Bottom);
+                GridSplitter_List.Visibility = Visibility.Visible;
+                btnShowList.Margin = new Thickness(0, 0, 0, 0);
                 btnShowList.Content = ">";
 
                 btnShowList.Opacity = 1;
@@ -1219,8 +1303,8 @@ namespace WpfVideoPlayer
                     Grid_Menu.Visibility = Visibility.Visible;
                 }
                 TreeView_File.Visibility = Visibility.Hidden;
-                btnShowList.Margin = new Thickness(btnShowList.Margin.Left,
-                    btnShowList.Margin.Top, 0, btnShowList.Margin.Bottom);
+                GridSplitter_List.Visibility = Visibility.Hidden;
+                btnShowList.Margin = new Thickness(0, 0, -(Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value), 0);
                 btnShowList.Content = "<";
             }
         }
@@ -1324,6 +1408,44 @@ namespace WpfVideoPlayer
             }
         }
         /// <summary>
+        /// 使视频暂停，并使视频进度跳到播放条进度
+        /// </summary>
+        private void JumpToSliderPosition()
+        {
+            if (Player.Source == null) return;
+            //有时候click不触发Down,确保暂停
+            SetVideoMode(false);
+            Task.Run(new Action(() =>
+            {
+                int t = 0;
+                bool Stoped = false;
+                Dispatcher.Invoke(() =>
+                {
+                    t = Player.Position.Milliseconds;
+                });
+            _A:
+                Thread.Sleep(100);
+                Dispatcher.Invoke(() =>
+                {
+                    if (Player.Position.Milliseconds != t)
+                    {
+                        t = Player.Position.Milliseconds;
+                    }
+                    else
+                    {
+                        Stoped = true;
+                    }
+                });
+                if (!Stoped) goto _A;
+                Dispatcher.Invoke(() =>
+                {
+                    Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+                    LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+                    SetVideoMode(true);
+                });
+            }));
+        }
+        /// <summary>
         /// 使得视频播放或暂停
         /// </summary>
         /// <param name="flag"></param>
@@ -1347,6 +1469,7 @@ namespace WpfVideoPlayer
                 playingFlag = false;
             }
         }
+
 
         #endregion
     }

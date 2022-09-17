@@ -15,26 +15,26 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_00448C7A094F47A68F59F4AAB76FBFF3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_11006790C21427953256C99E961F9D93"
-        "OwnerKey" = "8:_986072A2BCE7431E919CED37DA8217FD"
+        "OwnerKey" = "8:_00448C7A094F47A68F59F4AAB76FBFF3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_12968A6D0A75A67FEA1DF1F7FE7E6B09"
-        "OwnerKey" = "8:_986072A2BCE7431E919CED37DA8217FD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2A6CE19540F942A0847C64055D86FE4D"
+        "MsmKey" = "8:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_986072A2BCE7431E919CED37DA8217FD"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_C579A05298F77FFD3D57567B97C70A6E"
+        "OwnerKey" = "8:_00448C7A094F47A68F59F4AAB76FBFF3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -46,13 +46,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_986072A2BCE7431E919CED37DA8217FD"
+        "OwnerKey" = "8:_00448C7A094F47A68F59F4AAB76FBFF3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_12968A6D0A75A67FEA1DF1F7FE7E6B09"
+        "OwnerKey" = "8:_C579A05298F77FFD3D57567B97C70A6E"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -73,6 +73,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -89,6 +97,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -149,40 +165,9 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_12968A6D0A75A67FEA1DF1F7FE7E6B09"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:SubtitlesParser, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_12968A6D0A75A67FEA1DF1F7FE7E6B09"
-                    {
-                    "Name" = "8:SubtitlesParser.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:SubtitlesParser.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A6CE19540F942A0847C64055D86FE4D"
-            {
-            "SourcePath" = "8:..\\WpfVideoPlayer\\AppIcon.ico"
+            "SourcePath" = "8:..\\VPlayer\\bin\\Debug\\AppIcon.ico"
             "TargetName" = "8:AppIcon.ico"
             "Tag" = "8:"
             "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
@@ -198,6 +183,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C579A05298F77FFD3D57567B97C70A6E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:SetFileDefaultApp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_C579A05298F77FFD3D57567B97C70A6E"
+                    {
+                    "Name" = "8:SetFileDefaultApp.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:SetFileDefaultApp.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
         }
@@ -385,10 +401,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_986072A2BCE7431E919CED37DA8217FD"
+            "Target" = "8:"
             "Folder" = "8:_A0BE6288D4AF4288BC7DB5E1F34ED632"
             "WorkingFolder" = "8:_26637501540041B898DC14A19D9C65DF"
-            "Icon" = "8:_2A6CE19540F942A0847C64055D86FE4D"
+            "Icon" = "8:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_6365AC75F44549C188B298E7C261AE62"
@@ -399,10 +415,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_986072A2BCE7431E919CED37DA8217FD"
+            "Target" = "8:"
             "Folder" = "8:_5DE52172AE9A4FFC90DC0CE1028711AF"
             "WorkingFolder" = "8:_26637501540041B898DC14A19D9C65DF"
-            "Icon" = "8:_2A6CE19540F942A0847C64055D86FE4D"
+            "Icon" = "8:_8A5195B38AFB45C8ADBE324EDAB7CEAD"
             "Feature" = "8:"
             }
         }
@@ -804,9 +820,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_986072A2BCE7431E919CED37DA8217FD"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_00448C7A094F47A68F59F4AAB76FBFF3"
             {
-            "SourcePath" = "8:..\\WpfVideoPlayer\\obj\\Release\\VPlayer.exe"
+            "SourcePath" = "8:..\\VPlayer\\obj\\Debug\\VPlayer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_26637501540041B898DC14A19D9C65DF"
@@ -824,7 +840,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:Release|Any CPU"
+            "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{BD72F68A-0F8D-4A17-B61F-A72E33F67416}"
             "ShowKeyOutput" = "11:TRUE"

@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 
-namespace WpfVideoPlayer
+namespace VPlayer
 {
     public class VcreditWindowBehindCode : Window
     {

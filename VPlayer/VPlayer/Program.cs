@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace WpfVideoPlayer
+namespace VPlayer
 {
     public class Program
     {
@@ -23,7 +23,7 @@ namespace WpfVideoPlayer
             {
                 startStr = args;
             }
-            WpfVideoPlayer.App app = new WpfVideoPlayer.App();
+            VPlayer.App app = new VPlayer.App();
             app.InitializeComponent();
             app.Run();
         }

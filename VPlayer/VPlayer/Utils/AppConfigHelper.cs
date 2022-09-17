@@ -11,12 +11,36 @@ namespace Utils
 
         const string spliter = @"; ";
 
-        public static void SaveKey(string key, string value)
+
+        public static void RemoveKey(string key)
         {
+            Configuration configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            KeyValueConfigurationCollection settings = configFile.AppSettings.Settings;
             try
             {
-                var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-                var settings = configFile.AppSettings.Settings;
+                if (settings[key] == null)
+                {
+                    return;
+                }
+                else
+                {
+                    settings.Remove(key);
+                }
+                configFile.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                Console.WriteLine("Error Removing app settings");
+            }
+        }
+
+        public static void SaveKey(string key, string value)
+        {
+            Configuration configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            KeyValueConfigurationCollection settings = configFile.AppSettings.Settings;
+            try
+            {
                 if (settings[key] == null)
                 {
                     settings.Add(key, value);
@@ -33,6 +57,7 @@ namespace Utils
                 Console.WriteLine("Error writing app settings");
             }
         }
+
 
         public static string LoadKey(string key)
         {
