@@ -503,7 +503,10 @@ namespace VPlayer
 
         private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            JumpToSliderPosition();
+            if (Player.Source == null) return;
+            SetVideoMode(false); Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+            SetVideoMode(true);
         }
 
         private void Slider_Process_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -522,7 +525,20 @@ namespace VPlayer
 
         private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            JumpToSliderPosition();
+            if (Player.Source == null) return;
+            //有时候click不触发Down,确保暂停
+            SetVideoMode(false);
+            Task.Run(new Action(() =>
+            {
+                //等0.15s让进度条数值先变了。
+                Thread.Sleep(150);
+                Dispatcher.Invoke(() =>
+                {
+                    Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+                    LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+                    SetVideoMode(true);
+                });
+            }));
         }
         private void Slider_Vioce_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -1399,44 +1415,6 @@ namespace VPlayer
             {
                 btnTop.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/Images/NotTop.png")));
             }
-        }
-        /// <summary>
-        /// 使视频暂停，并使视频进度跳到播放条进度
-        /// </summary>
-        private void JumpToSliderPosition()
-        {
-            if (Player.Source == null) return;
-            //有时候click不触发Down,确保暂停
-            SetVideoMode(false);
-            Task.Run(new Action(() =>
-            {
-                int t = 0;
-                bool Stoped = false;
-                Dispatcher.Invoke(() =>
-                {
-                    t = Player.Position.Milliseconds;
-                });
-            _A:
-                Thread.Sleep(100);
-                Dispatcher.Invoke(() =>
-                {
-                    if (Player.Position.Milliseconds != t)
-                    {
-                        t = Player.Position.Milliseconds;
-                    }
-                    else
-                    {
-                        Stoped = true;
-                    }
-                });
-                if (!Stoped) goto _A;
-                Dispatcher.Invoke(() =>
-                {
-                    Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-                    LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-                    SetVideoMode(true);
-                });
-            }));
         }
         /// <summary>
         /// 使得视频播放或暂停
