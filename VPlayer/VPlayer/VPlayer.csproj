@@ -162,7 +162,6 @@
     <Resource Include="Images\Max.png" />
     <Resource Include="Images\Min.png" />
     <Resource Include="Images\Next.png" />
-    <Resource Include="Images\NotTop.png" />
     <Resource Include="Images\OpenFile.png" />
     <Resource Include="Images\Pause.png" />
     <Resource Include="Images\Return.png" />
@@ -173,7 +172,6 @@
     <Resource Include="Images\Stop.png" />
     <Resource Include="Images\Sub.png" />
     <Resource Include="Images\ToLeft.png" />
-    <Resource Include="Images\Top.png" />
     <Resource Include="Images\ToRight.png" />
     <Resource Include="Images\半透明的图片.png" />
     <Resource Include="Images\完全透明的图片.png" />
@@ -202,6 +200,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\NotPin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Pin.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
