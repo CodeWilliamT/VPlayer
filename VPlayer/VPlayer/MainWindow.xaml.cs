@@ -143,7 +143,7 @@ namespace VPlayer
                 Position = 0;
             }
         }
-
+        enum PlayOverActions { PlayNext = 0, PlayThis = 1,DoNothing=2}
         string title = "VPlayer By WilliamT";
         double minWidth = 630;
         double minHeight = 250;
@@ -186,6 +186,7 @@ namespace VPlayer
         public int nowPosition = 0;
         public Size defaultSize;
         public bool isListPinning;
+        public int PlayOverActionMode = 0;
         public MainWindow()
         {
             InitializeComponent();
@@ -277,7 +278,8 @@ namespace VPlayer
             List_SubFiles = new List<FileInfo>();
             List_MediaFileNames = new List<string>();
             RefreshFileTree();
-            PinList(false);
+            (menuPlayOverActions.Items[PlayOverActionMode] as System.Windows.Controls.MenuItem).IsChecked = true;
+            PinList(isListPinning);
         }
 
         /// <summary>
@@ -433,7 +435,27 @@ namespace VPlayer
             btnSubOpen.Visibility = Visibility.Hidden;
             btnSubVisible.Visibility = Visibility.Hidden;
         }
-        
+
+        private void menuOpenDir_Click(object sender, RoutedEventArgs e)
+        {
+            string startargs;
+            FileInfo fi = new FileInfo(nowFileName);
+            startargs = fi.DirectoryName;
+            Process.Start(@"Explorer.exe", startargs);
+        }
+
+        private void menuPlayOverActions_Items_Checked(object sender, RoutedEventArgs e)
+        {
+            var current = sender as System.Windows.Controls.MenuItem;
+            PlayOverActionMode = (int)(Enum.Parse(typeof(PlayOverActions), current.Tag.ToString()));
+            foreach (var m in menuPlayOverActions.Items)
+            {
+                var menucheck = m as System.Windows.Controls.MenuItem;
+                if (current.Name == menucheck.Name) continue;
+                menucheck.IsChecked = false;
+            }
+        }
+
         private void Control_MouseEnter(object sender, EventArgs e)
         {
             ((System.Windows.Controls.Control)sender).Opacity = 1;
@@ -480,7 +502,6 @@ namespace VPlayer
         private void btnPinList_Click(object sender, RoutedEventArgs e)
         {
             PinList(!isListPinning);
-            ShowList(true);
         }
 
 
@@ -538,7 +559,8 @@ namespace VPlayer
         private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (Player.Source == null) return;
-            SetVideoMode(false); Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+            SetVideoMode(false); 
+            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
             LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
             SetVideoMode(true);
         }
@@ -560,19 +582,10 @@ namespace VPlayer
         private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (Player.Source == null) return;
-            //有时候click不触发Down,确保暂停
             SetVideoMode(false);
-            Task.Run(new Action(() =>
-            {
-                //等0.15s让进度条数值先变了。
-                Thread.Sleep(150);
-                Dispatcher.Invoke(() =>
-                {
-                    Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-                    LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-                    SetVideoMode(true);
-                });
-            }));
+            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+            SetVideoMode(true);
         }
         private void Slider_Vioce_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -799,6 +812,7 @@ namespace VPlayer
 
         private void formWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            TreeView_File_SizeChanged(null, null);
             if (formWindow.Width < minWidth) formWindow.Width = minWidth;
             if (formWindow.Height < minHeight) formWindow.Height = minHeight;
             double sizePercent = formWindow.Height / preHeight;
@@ -819,7 +833,7 @@ namespace VPlayer
         private void TreeView_File_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if(isListPinning&& TreeView_File.Visibility==Visibility.Visible)
-                Grid_Main.Width = formWindow.ActualWidth - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value+12);
+                Grid_Main.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value+12);
         }
 
         private void Grid_Form_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -1233,15 +1247,18 @@ namespace VPlayer
         /// <param name="flag"></param>
         private void PinList(bool flag)
         {
-            if (isListPinning == flag) return;
+            //if (isListPinning == flag) return;
             if (flag)
             {
+                ShowList(true);
                 isListPinning = true;
                 btnPinList.Background = VideoImageBrushs.Pin;
                 TreeView_File_SizeChanged(null, null);
 
-                TreeView_File.Margin = new Thickness(0, -Grid_Center.Margin.Top, 0, -Grid_Center.Margin.Bottom);
-                GridSplitter_List.Margin = new Thickness(0, -Grid_Center.Margin.Top, 0, -Grid_Center.Margin.Bottom);
+                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
+
+                ShowList(true);
             }
             else
             {
@@ -1301,7 +1318,7 @@ namespace VPlayer
             {
                 if (isListPinning)
                 {
-                    var binding = new System.Windows.Data.Binding("ActualWidth") { Source = this.formWindow };
+                    var binding = new System.Windows.Data.Binding("ActualWidth") { Source = this.Grid_Form };
                     this.Grid_Main.SetBinding(Grid.WidthProperty, binding);
                 }
                 if (playFileFlag)
@@ -1421,17 +1438,22 @@ namespace VPlayer
             btnLeft.Visibility = Visibility.Visible;
             btnRight.Visibility = Visibility.Visible;
             Label_Process.Visibility = Visibility.Visible;
+            if (!isListPinning)
+            {
+                if (TreeView_File.Visibility == Visibility.Hidden)
+                {
+                    btnShowList.Opacity = 0;
+                    btnShowList.MouseEnter += Control_MouseEnter;
+                    btnShowList.MouseLeave += Control_MouseLeave;
+                }
+                else
+                {
+                    Canvas_Top.Visibility = Visibility.Hidden;
+                    Grid_Menu.Visibility = Visibility.Hidden;
+                }
+                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
 
-            if (TreeView_File.Visibility == Visibility.Hidden)
-            {
-                btnShowList.Opacity = 0;
-                btnShowList.MouseEnter += Control_MouseEnter;
-                btnShowList.MouseLeave += Control_MouseLeave;
-            }
-            else
-            {
-                Canvas_Top.Visibility = Visibility.Hidden;
-                Grid_Menu.Visibility = Visibility.Hidden;
             }
             SetPanelMotionVisible(Grid_Top, true);
             SetPanelMotionVisible(Grid_Menu, true);
@@ -1441,11 +1463,6 @@ namespace VPlayer
                 btnLast.IsEnabled = true;
             if (nowIdx != List_MediaFileNodes.Count - 1)
                 btnNext.IsEnabled = true;
-            if (!isListPinning)
-            {
-                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
-                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
-            }
         }
         private void SetVideoMax(bool flag)
         {
@@ -1507,6 +1524,28 @@ namespace VPlayer
             btnScreen.Background = VideoImageBrushs.Screen;
             isWindowMax = !isWindowMax;
         }
+
+        private void Player_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            switch (PlayOverActionMode)
+            {
+                case 0://playnext
+                    btnNext_Click(null, null);
+                    break;
+                case 1://playthis
+                    {
+                        Slider_Process.Value = 0;
+                        Slider_Process_KeyUp(null, null);
+                        break;
+                    }
+                case 2://donothing
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
 
 
 

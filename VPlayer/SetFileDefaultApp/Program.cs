@@ -69,11 +69,6 @@ namespace SetFileDefaultApp
             FileInfo appInfo = new FileInfo(appPath);
             string friendlyAppName = appInfo.Name.Substring(0, appInfo.Name.Length - appInfo.Extension.Length);
             var fileExtensionKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(fileExtension);
-            if (fileExtensionKey != null)
-                Registry.ClassesRoot.DeleteSubKeyTree(fileExtension, false);
-            fileExtensionKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Software\\Classes\\" + fileExtension);
-            if (fileExtensionKey != null)
-                Registry.CurrentUser.DeleteSubKeyTree("Software\\Classes\\" + fileExtension, false);
 
             string fileType = fileExtension.Substring(1);
             string fileTypeNodeName = fileType + "_aoto_file";
