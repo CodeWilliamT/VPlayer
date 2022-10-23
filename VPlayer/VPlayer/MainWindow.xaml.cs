@@ -893,6 +893,18 @@ namespace VPlayer
                 "Setting(设置)-Apps(应用)-\r\nDefault apps(默认应用)-Video player(媒体应用)下 再设置为本应用");
         }
 
+        private void menuInstallHEVC_Click(object sender, RoutedEventArgs e)
+        {
+            if (System.Windows.MessageBox.Show(
+        "是否从微软商场安装HEVC解码器？", "询问", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    string url = "ms-windows-store://pdp/?ProductId=9n4wgh0z6vhq";
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                }
+            }
+        }
 
         private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1406,7 +1418,15 @@ namespace VPlayer
                 {
                     btnStop_Click(null, null);
                     SetVideoMode(false);
-                    System.Windows.MessageBox.Show("文件损坏，或者不支持此种视频格式");
+                    if (System.Windows.MessageBox.Show(
+                "文件损坏，或者不支持此种视频格式。\n可能是未安装HEVC解码器，是否从微软商场安装？","打开失败",MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            string url = "ms-windows-store://pdp/?ProductId=9n4wgh0z6vhq";
+                            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                        }
+                    }
                     return;
                 }
             }
@@ -1544,6 +1564,7 @@ namespace VPlayer
                     break;
             }
         }
+
 
 
 

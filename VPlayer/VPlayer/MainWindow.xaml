@@ -27,6 +27,7 @@
                 <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
                 <MenuItem Name="menuTop" Header="最前显示" Click="btnTop_Click" IsCheckable="True"/>
                 <MenuItem Name="menuSetDefault" Header="设为默认媒体程序" Click="menuSetDefault_Click" />
+                <MenuItem Name="menuInstallHEVC" Header="从微软商城安装HEVC解码器" Click="menuInstallHEVC_Click"  />
             </ContextMenu>
         </Grid.ContextMenu>
         <Grid x:Name="Grid_Main" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1" HorizontalAlignment="Left">
