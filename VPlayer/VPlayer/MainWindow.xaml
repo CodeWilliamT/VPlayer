@@ -32,19 +32,12 @@
         </Grid.ContextMenu>
         <Grid x:Name="Grid_Main" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1" HorizontalAlignment="Left">
             <MediaElement x:Name="Player" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
-
             <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
             <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
             <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
             <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
             <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
             <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,60" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="White" FontSize="17" TextAlignment="Center" FontWeight="Bold"/>
-            <Canvas x:Name="Canvas_File" Margin="0,0,0,0" Height="40" HorizontalAlignment="Center" Width="190" VerticalAlignment="Center">
-                <Button x:Name="btnOpenFile" Content="打开文件" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Foreground="White" Click="btnOpenFile_Click" Focusable="False" Cursor="Hand"/>
-                <Button x:Name="btnDown" Content="▼" Canvas.Left="78" Width="28" Background="#FF0E0E0E" Foreground="White" Click="btnDown_Click" Focusable="False" Cursor="Hand"/>
-                <Button x:Name="btnOpenFolder" Content="打开文件夹" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="106" RenderTransformOrigin="0.491,0.5" Background="#FF0E0E0E" Foreground="White" Canvas.Top="18" Height="20" Visibility="Visible" Click="btnOpenFolder_Click" Focusable="False" Cursor="Hand"/>
-
-            </Canvas>
             <Grid x:Name="Grid_Top" Height="60" VerticalAlignment="Top" Background="#00000000">
                 <Canvas x:Name="Canvas_Top" Height="30" VerticalAlignment="Top" Background="#33000000">
                     <Label x:Name="label_NowFile" Content="VPlayer By WilliamT" Canvas.Top="0" Foreground="White" Width="auto" Height="auto" />
@@ -102,7 +95,7 @@
                         <ImageBrush ImageSource="Images/Sound.png"/>
                     </Button.Background>
                 </Button>
-                <Slider x:Name="Slider_Process"  Margin="35,4,35,52" Width="{Binding Width, ElementName=GirdMenu}" HorizontalAlignment="Stretch" KeyDown="Slider_Process_KeyDown" KeyUp="Slider_Process_KeyUp" SmallChange="5" Interval="5" IsMoveToPointEnabled="True" Focusable="False" MouseLeftButtonUp="Slider_Process_MouseUp" PreviewMouseLeftButtonDown="Slider_Process_MouseDown" Cursor="Hand" />
+                <Slider x:Name="Slider_Process"  Margin="35,4,35,52" Width="{Binding Width, ElementName=GirdMenu}" HorizontalAlignment="Stretch" KeyDown="Slider_Process_KeyDown" KeyUp="Slider_Process_KeyUp" SmallChange="5" Interval="5" IsMoveToPointEnabled="True" Focusable="False" Cursor="Hand" PreviewMouseDown="Slider_Process_MouseDown" PreviewMouseUp="Slider_Process_MouseUp" />
                 <Button x:Name="btnLeft" Width="24" Foreground="#FF6E6E6E" Height="24" RenderTransformOrigin="0.958,1" Style="{StaticResource CustomButton}" Margin="6,2,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" Click="btnLeft_Click" ToolTip="快退(←)" Cursor="Hand">
                     <Button.Background>
                         <ImageBrush ImageSource="Images/ToLeft.png"/>
@@ -161,13 +154,13 @@
 
         </Grid>
 
-        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel">
+        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="270" />
             </Grid.ColumnDefinitions>
-
+            <Grid x:Name="Grid_CenterLeft" Grid.Column="0" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel"></Grid>
             <Button x:Name="btnPinList" Grid.Column="0" Margin="0,-165,0,0" HorizontalAlignment="Right" Opacity="0.95" Style="{StaticResource CustomButton}" Click="btnPinList_Click" Width="25" Height="25" Focusable="False" Cursor="Hand">
                 <Button.Background>
                     <ImageBrush ImageSource="Images/NotPin.png"/>
@@ -219,6 +212,11 @@
             </TreeView>
 
         </Grid>
+        <Canvas x:Name="Canvas_File" Margin="0,0,0,0" Height="40" HorizontalAlignment="Center" Width="190" VerticalAlignment="Center">
+            <Button x:Name="btnOpenFile" Content="打开文件" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Foreground="White" Click="btnOpenFile_Click" Focusable="False" Cursor="Hand"/>
+            <Button x:Name="btnDown" Content="▼" Canvas.Left="78" Width="28" Background="#FF0E0E0E" Foreground="White" Click="btnDown_Click" Focusable="False" Cursor="Hand"/>
+            <Button x:Name="btnOpenFolder" Content="打开文件夹" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="106" RenderTransformOrigin="0.491,0.5" Background="#FF0E0E0E" Foreground="White" Canvas.Top="18" Height="20" Visibility="Visible" Click="btnOpenFolder_Click" Focusable="False" Cursor="Hand"/>
 
+        </Canvas>
     </Grid>
 </local:VcreditWindowBehindCode>

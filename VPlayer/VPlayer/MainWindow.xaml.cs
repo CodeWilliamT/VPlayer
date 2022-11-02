@@ -26,7 +26,7 @@ using System.Diagnostics;
 namespace VPlayer
 {
 
-    public class CustomNode: TreeViewItemBase
+    public class CustomNode : TreeViewItemBase
     {
         public CustomNode()
         {
@@ -83,8 +83,6 @@ namespace VPlayer
                 }
             }
         }
-
-
         private bool isRecorded;
         public bool IsRecorded
         {
@@ -143,7 +141,7 @@ namespace VPlayer
                 Position = 0;
             }
         }
-        enum PlayOverActions { PlayNext = 0, PlayThis = 1,DoNothing=2}
+        enum PlayOverActions { PlayNext = 0, PlayThis = 1, DoNothing = 2 }
         string title = "VPlayer By WilliamT";
         double minWidth = 630;
         double minHeight = 250;
@@ -314,7 +312,7 @@ namespace VPlayer
         {
             if (Player.Source == null) return;
             Slider_Process.Value = (int)Player.Position.TotalSeconds;
-            if(Player.NaturalDuration.HasTimeSpan)
+            if (Player.NaturalDuration.HasTimeSpan)
                 Label_Process.Content = Player.Position.ToString("hh\\:mm\\:ss") + "/" + Player.NaturalDuration.TimeSpan.ToString("hh\\:mm\\:ss");
 
         }
@@ -330,9 +328,9 @@ namespace VPlayer
                 if (msec > subItem.StartTime && msec < subItem.EndTime)
                 {
                     s.Append(subItem.PlaintextLines[0]);
-                    for(int i= 1;i < subItem.PlaintextLines.Count();i++)
+                    for (int i = 1; i < subItem.PlaintextLines.Count(); i++)
                     {
-                        s.Append("\n"+subItem.PlaintextLines[i]);
+                        s.Append("\n" + subItem.PlaintextLines[i]);
                     }
                 }
             }
@@ -342,7 +340,7 @@ namespace VPlayer
         {
             label_time.Content = DateTime.Now.ToString("HH:mm:ss");
             if (sec_logDelay == sec_logDelayMax + 3) return;
-            else if(sec_logDelay < sec_logDelayMax) sec_logDelay++;
+            else if (sec_logDelay < sec_logDelayMax) sec_logDelay++;
             else
             {
                 textBlock_Log.Text = "";
@@ -361,7 +359,7 @@ namespace VPlayer
         #endregion
         private void btnDown_Click(object sender, RoutedEventArgs e)
         {
-            if(btnOpenFolder.Visibility==Visibility.Hidden)
+            if (btnOpenFolder.Visibility == Visibility.Hidden)
             {
                 btnOpenFolder.Visibility = Visibility.Visible;
             }
@@ -409,7 +407,7 @@ namespace VPlayer
             btnSubVisible.Visibility = Visibility.Hidden;
             OpenFileDialog ofd = new OpenFileDialog();
             if (Directory.Exists(defaultDirctory)) ofd.InitialDirectory = defaultDirctory;
-            
+
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 OpenSubFile(ofd.FileName);
@@ -553,17 +551,8 @@ namespace VPlayer
             if (Player.Source == null) return;
             btnStart_Click(null, null);
         }
-        
-        
 
-        private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (Player.Source == null) return;
-            SetVideoMode(false); 
-            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-            SetVideoMode(true);
-        }
+
 
         private void Slider_Process_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -579,10 +568,17 @@ namespace VPlayer
             SetVideoMode(false);
         }
 
+        private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (Player.Source == null) return;
+            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+            SetVideoMode(true);
+        }
+
         private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (Player.Source == null) return;
-            SetVideoMode(false);
             Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
             LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
             SetVideoMode(true);
@@ -591,10 +587,10 @@ namespace VPlayer
         {
             if (Player.Source == null) return;
             Player.Volume = 1.0 * Slider_Voice.Value / Slider_Voice.Maximum;
-            if(Slider_Voice.Value>0) defaultVoice = (int)Slider_Voice.Value;
+            if (Slider_Voice.Value > 0) defaultVoice = (int)Slider_Voice.Value;
             LogInfo("音量:" + Player.Volume.ToString("P0"));
         }
-        
+
 
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
@@ -674,7 +670,7 @@ namespace VPlayer
                     SetVideoMax(false);
                     break;
                 case Key.PageUp:
-                    btnLast_Click(null,null);
+                    btnLast_Click(null, null);
                     break;
                 case Key.PageDown:
                     btnNext_Click(null, null);
@@ -692,7 +688,7 @@ namespace VPlayer
 
         private void TreeView_File_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (TreeView_File.SelectedItem==null) return;
+            if (TreeView_File.SelectedItem == null) return;
             string path = (TreeView_File.SelectedItem as CustomNode).FullName;
             FileInfo fileInfo = new FileInfo(path);
             if ((fileInfo.Attributes & FileAttributes.Directory) == 0)
@@ -708,7 +704,7 @@ namespace VPlayer
 
         private void btnScreen_Click(object sender, RoutedEventArgs e)
         {
-            SetVideoMax(WindowState==WindowState.Normal);
+            SetVideoMax(WindowState == WindowState.Normal);
         }
 
         private void btnRight_Click(object sender, RoutedEventArgs e)
@@ -716,7 +712,7 @@ namespace VPlayer
             SetVideoMode(false);
             Slider_Process.Value += Slider_Process.Interval;
             Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("快进  " + Player.Position.ToString("hh\\:mm\\:ss")+" (" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+            LogInfo("快进  " + Player.Position.ToString("hh\\:mm\\:ss") + " (" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
             SetVideoMode(true);
         }
 
@@ -725,29 +721,29 @@ namespace VPlayer
             SetVideoMode(false);
             Slider_Process.Value -= Slider_Process.Interval;
             Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("快退  " + Player.Position.ToString("hh\\:mm\\:ss") +" (" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
+            LogInfo("快退  " + Player.Position.ToString("hh\\:mm\\:ss") + " (" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
             SetVideoMode(true);
         }
 
         private void btnLast_Click(object sender, RoutedEventArgs e)
         {
             nowIdx = List_MediaFileNames.IndexOf(nowFileName);
-            if (nowIdx <1) return;
+            if (nowIdx < 1) return;
             OpenMediaFile(List_MediaFileNodes[nowIdx - 1].FullName);
         }
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
             nowIdx = List_MediaFileNames.IndexOf(nowFileName);
-            if (nowIdx == List_MediaFileNodes.Count-1) return;
-            OpenMediaFile(List_MediaFileNodes[nowIdx +1].FullName);
+            if (nowIdx == List_MediaFileNodes.Count - 1) return;
+            OpenMediaFile(List_MediaFileNodes[nowIdx + 1].FullName);
         }
-        
+
 
         private void btn_Silence_Click(object sender, RoutedEventArgs e)
         {
             if (Player.Source == null) return;
-            if(Slider_Voice.Value==0)
+            if (Slider_Voice.Value == 0)
             {
                 Slider_Voice.Value = defaultVoice;
                 btn_Silence.Background = VideoImageBrushs.Sound;
@@ -764,9 +760,9 @@ namespace VPlayer
         {
             if (Player == null) return;
             if (Player.Source == null) return;
-            Player.SpeedRatio = (double)(Slider_Speed.Value/10);
-            textBlock_speed.Text = ((double)Slider_Speed.Value/10).ToString("F1");
-            LogInfo("倍速：  " + Player.SpeedRatio.ToString("F1")+"倍速");
+            Player.SpeedRatio = (double)(Slider_Speed.Value / 10);
+            textBlock_speed.Text = ((double)Slider_Speed.Value / 10).ToString("F1");
+            LogInfo("倍速：  " + Player.SpeedRatio.ToString("F1") + "倍速");
         }
 
         private void formWindow_DragEnter(object sender, System.Windows.DragEventArgs e)
@@ -832,8 +828,12 @@ namespace VPlayer
 
         private void TreeView_File_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if(isListPinning&& TreeView_File.Visibility==Visibility.Visible)
-                Grid_Main.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value+12);
+            if (isListPinning && TreeView_File.Visibility == Visibility.Visible)
+            {
+                Grid_Main.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value + 12);
+                Canvas_File.Margin=new Thickness(Grid_Main.Width / 2.0 - formWindow.Width/2.0, Canvas_File.Margin.Top,
+                    Canvas_File.Margin.Right, Canvas_File.Margin.Bottom);
+            }
         }
 
         private void Grid_Form_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -846,7 +846,7 @@ namespace VPlayer
             {
                 SetVideoMax(WindowState == WindowState.Normal);
             }
-            if (e.LeftButton == MouseButtonState.Pressed&&WindowState== WindowState.Normal)
+            if (e.LeftButton == MouseButtonState.Pressed && WindowState == WindowState.Normal)
             {
                 this.DragMove();
             }
@@ -872,7 +872,8 @@ namespace VPlayer
 
         private void menuClearList_Click(object sender, RoutedEventArgs e)
         {
-            Dispatcher.InvokeAsync(() => {
+            Dispatcher.InvokeAsync(() =>
+            {
                 foreach (CustomNode it in TreeView_File.Items)
                 {
                     DeleteDirNodeRecord(it);
@@ -918,7 +919,8 @@ namespace VPlayer
 
         private void menuDeleteNodeRecord_Click(object sender, RoutedEventArgs e)
         {
-            Dispatcher.InvokeAsync(() => {
+            Dispatcher.InvokeAsync(() =>
+            {
                 CustomNode node = TreeView_File.SelectedItem as CustomNode;
                 if (node.Level == 0)
                 {
@@ -927,7 +929,7 @@ namespace VPlayer
                     List_Dirctory.Remove(node.FullName);
                     RefreshFileTree();
                 }
-                if (node.Level> 0)
+                if (node.Level > 0)
                     DeleteFileNodeRecord(node);
             });
         }
@@ -935,8 +937,8 @@ namespace VPlayer
         private void menuOpenNodeFolder_Click(object sender, RoutedEventArgs e)
         {
             string startargs;
-            CustomNode node= TreeView_File.SelectedItem as CustomNode;
-            startargs=node.Level==0? node.FullName: (new FileInfo(node.FullName)).DirectoryName;
+            CustomNode node = TreeView_File.SelectedItem as CustomNode;
+            startargs = node.Level == 0 ? node.FullName : (new FileInfo(node.FullName)).DirectoryName;
             Process.Start(@"Explorer.exe", startargs);
         }
 
@@ -1036,8 +1038,8 @@ namespace VPlayer
             try
             {
                 if (List_Dirctory.Contains(DirctoryName)) return;
-                CustomNode node=AddDirectoryToTreeView(DirctoryName);
-                node.IsSelected= true;
+                CustomNode node = AddDirectoryToTreeView(DirctoryName);
+                node.IsSelected = true;
                 node.IsExpanded = true;
                 List_Dirctory.Add(DirctoryName);
             }
@@ -1057,17 +1059,21 @@ namespace VPlayer
             {
                 DirectoryInfo path = new DirectoryInfo(DirctoryName);
                 FileInfo[] Dir = path.GetFiles("*", SearchOption.AllDirectories);
-                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName, Level = 0};
+                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName, Level = 0 };
                 AddContextMenuToDirNode(dirNode);
                 int i = List_MediaFileNodes.Count;
                 foreach (FileInfo d in Dir)
                 {
                     if (supportedVideos.Contains(d.Extension.ToLower()))
                     {
-                        CustomNode fileNode = new CustomNode() { Name = d.FullName.Remove(0, path.FullName.Length + 1), 
-                            FullName = d.FullName, Level = 1};
+                        CustomNode fileNode = new CustomNode()
+                        {
+                            Name = d.FullName.Remove(0, path.FullName.Length + 1),
+                            FullName = d.FullName,
+                            Level = 1
+                        };
                         AddContextMenuToFileNode(fileNode);
-                        int record = LoadRecord( d.FullName);
+                        int record = LoadRecord(d.FullName);
                         fileNode.IsRecorded = record > 0;
                         dirNode.Childs.Add(fileNode);
                         List_MediaFileNodes.Add(fileNode);
@@ -1104,7 +1110,7 @@ namespace VPlayer
                     {
                         continue;
                     }
-                    node=AddDirectoryToTreeView(d);
+                    node = AddDirectoryToTreeView(d);
                     node.IsExpanded = true;
                 }
             }
@@ -1131,7 +1137,7 @@ namespace VPlayer
         {
             try
             {
-                if (fileName==null||fileName == "") return;
+                if (fileName == null || fileName == "") return;
                 if (!File.Exists(fileName)) return;
                 if (playFileFlag)
                 {
@@ -1192,7 +1198,7 @@ namespace VPlayer
                 {
                     int idx = List_MediaFileNodes.Count;
                     AddDirectoryToListFile(folderName);
-                    if (List_MediaFileNodes.Count> idx)
+                    if (List_MediaFileNodes.Count > idx)
                         OpenMediaFile(List_MediaFileNodes[idx].FullName);
                 }
             }
@@ -1210,7 +1216,7 @@ namespace VPlayer
             if (Player.Source == null) return false;
             if (fileName == null || fileName == "") return false;
             if (!File.Exists(fileName)) return false;
-            nowSubName= fileName;
+            nowSubName = fileName;
             FileInfo fileInfo = new FileInfo(fileName);
             if (!supportedSubs.Contains(fileInfo.Extension.ToLower()))
             {
@@ -1218,10 +1224,11 @@ namespace VPlayer
             }
             try
             {
-                if (subItems != null) 
+                if (subItems != null)
                     subItems.Clear();
                 var subParse = new SubtitlesParser.Classes.Parsers.SubParser();
-                using (StreamReader sr = new StreamReader(fileName)) {
+                using (StreamReader sr = new StreamReader(fileName))
+                {
                     subItems = subParse.ParseStream(sr.BaseStream);
                 }
                 LogInfo("已加载字幕" + fileInfo.Name);
@@ -1419,7 +1426,7 @@ namespace VPlayer
                     btnStop_Click(null, null);
                     SetVideoMode(false);
                     if (System.Windows.MessageBox.Show(
-                "文件损坏，或者不支持此种视频格式。\n可能是未安装HEVC解码器，是否从微软商场安装？","打开失败",MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                "文件损坏，或者不支持此种视频格式。\n可能是未安装HEVC解码器，是否从微软商场安装？", "打开失败", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                         {
@@ -1449,7 +1456,8 @@ namespace VPlayer
                 }
             }
             nowPosition = LoadRecord(nowFileName);
-            Player.Position = new TimeSpan(0, 0, 0, 0, nowPosition);
+            if(nowPosition+1000< Player.NaturalDuration.TimeSpan.TotalMilliseconds)
+                Player.Position = new TimeSpan(0, 0, 0, 0, nowPosition);
 
 
             //UI
@@ -1458,23 +1466,8 @@ namespace VPlayer
             btnLeft.Visibility = Visibility.Visible;
             btnRight.Visibility = Visibility.Visible;
             Label_Process.Visibility = Visibility.Visible;
-            if (!isListPinning)
-            {
-                if (TreeView_File.Visibility == Visibility.Hidden)
-                {
-                    btnShowList.Opacity = 0;
-                    btnShowList.MouseEnter += Control_MouseEnter;
-                    btnShowList.MouseLeave += Control_MouseLeave;
-                }
-                else
-                {
-                    Canvas_Top.Visibility = Visibility.Hidden;
-                    Grid_Menu.Visibility = Visibility.Hidden;
-                }
-                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
-                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
-
-            }
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+            GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
             SetPanelMotionVisible(Grid_Top, true);
             SetPanelMotionVisible(Grid_Menu, true);
             Canvas_File.Visibility = Visibility.Hidden;
@@ -1522,8 +1515,8 @@ namespace VPlayer
                 grid.ColumnDefinitions[0].Width = new GridLength(0);
                 grid.ColumnDefinitions[2].Width = new GridLength(0);
                 WindowState = WindowState.Normal;
-                this.Width = rect.Width+22;
-                this.Height = rect.Height+22;
+                this.Width = rect.Width + 22;
+                this.Height = rect.Height + 22;
                 this.Top = -11;
                 this.Left = -11;
             }
@@ -1566,11 +1559,6 @@ namespace VPlayer
         }
 
 
-
-
-
-
-
         /// <summary>
         /// 配置是否显示最前
         /// </summary>
@@ -1608,7 +1596,7 @@ namespace VPlayer
             {
                 timer_Process.Stop();
                 timer_Sub.Stop();
-                if(Player.HasAudio||Player.HasVideo)
+                if (Player.HasAudio || Player.HasVideo)
                     Player.Pause();
                 btnStart.Background = VideoImageBrushs.Start;
                 playingFlag = false;
