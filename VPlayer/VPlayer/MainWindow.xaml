@@ -154,7 +154,7 @@
 
         </Grid>
 
-        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76">
+        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="5" />
