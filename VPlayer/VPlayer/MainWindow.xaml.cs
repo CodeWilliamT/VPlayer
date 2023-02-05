@@ -142,7 +142,8 @@ namespace VPlayer
             }
         }
         enum PlayOverActions { PlayNext = 0, PlayThis = 1, DoNothing = 2 }
-        string title = "VPlayer By WilliamT";
+        const string title = 1==1?"b": "VPlayer By WilliamT";
+        const string configPath = ".\\VPlayer.exe.Config";
         double minWidth = 630;
         double minHeight = 250;
 
@@ -345,6 +346,7 @@ namespace VPlayer
             {
                 textBlock_Log.Text = "";
             }
+            if (!Grid_CenterLeft.IsMouseOver) return;
             if (!mourseVisible) return;
             else if (mourseVisibleDelay < mourseVisibleMax) mourseVisibleDelay++;
             else
@@ -634,13 +636,11 @@ namespace VPlayer
         {
             switch (e.Key)
             {
-                case Key.S:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                        btnStop_Click(null, null);
+                case Key.End:
+                    btnStop_Click(null, null);
                     break;
-                case Key.M:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                        SetVideoMax(true);
+                case Key.F:
+                    SetVideoMax(true);
                     break;
                 case Key.Space:
                     {
@@ -874,10 +874,9 @@ namespace VPlayer
         {
             Dispatcher.InvokeAsync(() =>
             {
-                foreach (CustomNode it in TreeView_File.Items)
-                {
-                    DeleteDirNodeRecord(it);
-                }
+
+                if (File.Exists(configPath));
+                    File.Delete(configPath);
                 TreeView_File.Items.Clear();
                 List_Dirctory.Clear();
                 RefreshFileTree();
@@ -1472,6 +1471,10 @@ namespace VPlayer
             SetPanelMotionVisible(Grid_Menu, true);
             Canvas_File.Visibility = Visibility.Hidden;
             btnStop.IsEnabled = true;
+            Grid_CenterLeft.Focus();
+            if(!isListPinning && btnShowList.Content.ToString() == ">")
+                ShowList(true);
+                
             if (nowIdx != 0)
                 btnLast.IsEnabled = true;
             if (nowIdx != List_MediaFileNodes.Count - 1)
