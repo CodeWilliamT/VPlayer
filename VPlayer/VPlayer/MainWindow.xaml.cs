@@ -405,8 +405,7 @@ namespace VPlayer
         private void btnSubOpen_Click(object sender, RoutedEventArgs e)
         {
             timer_Time.Stop();
-            btnSubOpen.Visibility = Visibility.Hidden;
-            btnSubVisible.Visibility = Visibility.Hidden;
+            Canvas_Sub.Visibility = Visibility.Hidden;
             OpenFileDialog ofd = new OpenFileDialog();
             if (Directory.Exists(defaultDirctory)) ofd.InitialDirectory = defaultDirctory;
 
@@ -432,8 +431,7 @@ namespace VPlayer
                 menuSubVisible.IsChecked = false;
                 tbSub.Visibility = Visibility.Visible;
             }
-            btnSubOpen.Visibility = Visibility.Hidden;
-            btnSubVisible.Visibility = Visibility.Hidden;
+            Canvas_Sub.Visibility = Visibility.Hidden;
         }
 
         private void menuOpenDir_Click(object sender, RoutedEventArgs e)
@@ -490,8 +488,8 @@ namespace VPlayer
                 Thread.Sleep(5000);
                 Dispatcher.Invoke(() =>
                 {
-                    btnSubOpen.Visibility = Visibility.Hidden;
-                    btnSubVisible.Visibility = Visibility.Hidden;
+                    Canvas_Voice.Visibility = Visibility.Hidden;
+                    Canvas_Sub.Visibility = Visibility.Hidden;
                 });
             }));
             //panel.IsEnabled = false;
@@ -555,35 +553,23 @@ namespace VPlayer
         }
 
 
-
-        private void Slider_Process_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            //按住方向的时候
-            if (Player.Source == null) return;
-            SetVideoMode(false);
-        }
-
-        private void Slider_Process_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Slider_Process_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             //拖动的时候
-            if (Player.Source == null) return;
-            SetVideoMode(false);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (Player.Source == null) return;
+                timer_Process.Stop();
+            }
         }
-
-        private void Slider_Process_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (Player.Source == null) return;
-            Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
-            LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-            SetVideoMode(true);
-        }
-
         private void Slider_Process_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (Player.Source == null) return;
+            timer_Process.Stop();
             Player.Position = TimeSpan.FromSeconds(Slider_Process.Value);
+            timer_Process.Start();
             LogInfo("跳至  " + Player.Position.ToString("hh\\:mm\\:ss") + "(" + (Slider_Process.Value / Slider_Process.Maximum).ToString("P2") + ")");
-            SetVideoMode(true);
+            //SetVideoMode(true);
         }
         private void Slider_Vioce_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -793,20 +779,18 @@ namespace VPlayer
 
         private void btnSub_Click(object sender, RoutedEventArgs e)
         {
-            if (btnSubOpen.Visibility == Visibility.Hidden)
+            if (Canvas_Sub.Visibility == Visibility.Hidden)
             {
-                btnSubOpen.Visibility = Visibility.Visible;
-                btnSubVisible.Visibility = Visibility.Visible;
+                Canvas_Sub.Visibility = Visibility.Visible;
             }
             else
             {
-                btnSubOpen.Visibility = Visibility.Hidden;
-                btnSubVisible.Visibility = Visibility.Hidden;
+                Canvas_Sub.Visibility = Visibility.Hidden;
             }
         }
 
 
-        private void formWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void Player_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             TreeView_File_SizeChanged(null, null);
             if (formWindow.Width < minWidth) formWindow.Width = minWidth;
@@ -939,6 +923,27 @@ namespace VPlayer
             CustomNode node = TreeView_File.SelectedItem as CustomNode;
             startargs = node.Level == 0 ? node.FullName : (new FileInfo(node.FullName)).DirectoryName;
             Process.Start(@"Explorer.exe", startargs);
+        }
+
+        private void Player_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            Player.Position = TimeSpan.FromSeconds(0);
+            switch (PlayOverActionMode)
+            {
+                case 0://playnext
+                    btnNext_Click(null, null);
+                    break;
+                case 1://playthis
+                    {
+                        if (Player.Source == null) return;
+                        SetVideoMode(true);
+                        break;
+                    }
+                case 2://donothing
+                    break;
+                default:
+                    break;
+            }
         }
 
         #region UI Functions
@@ -1411,12 +1416,15 @@ namespace VPlayer
             nowIdx = List_MediaFileNames.IndexOf(nowFileName);
             Player.Source = new Uri(fileName);
             Player.LoadedBehavior = MediaState.Manual;
-            Player.Volume = 1.0 * defaultVoice / Slider_Voice.Maximum;
             Slider_Voice.Value = defaultVoice;
+            Player.Volume = 1.0 * defaultVoice / Slider_Voice.Maximum;
             label_NowFile.Content = fileInfo.Name;
             List_MediaFileNodes[nowIdx].IsUsing = true;
+
             SetVideoMode(true);
             DateTime t = DateTime.Now;
+
+
             while (!Player.NaturalDuration.HasTimeSpan)//等待媒体开始播放
             {
                 System.Threading.Thread.Sleep(50);
@@ -1437,6 +1445,10 @@ namespace VPlayer
                 }
             }
 
+            nowPosition = LoadRecord(nowFileName);
+            if (nowPosition + 1000 < Player.NaturalDuration.TimeSpan.TotalMilliseconds)
+                Player.Position = new TimeSpan(0, 0, 0, 0, nowPosition);
+
             if (subItems != null)
             {
                 subItems.Clear();
@@ -1454,10 +1466,6 @@ namespace VPlayer
                         break;
                 }
             }
-            nowPosition = LoadRecord(nowFileName);
-            if(nowPosition+1000< Player.NaturalDuration.TimeSpan.TotalMilliseconds)
-                Player.Position = new TimeSpan(0, 0, 0, 0, nowPosition);
-
 
             //UI
             Slider_Process.Maximum = (int)Player.NaturalDuration.TimeSpan.TotalSeconds;
@@ -1490,6 +1498,7 @@ namespace VPlayer
                 grid.RowDefinitions[2].Height = new GridLength(0);
                 grid.ColumnDefinitions[0].Width = new GridLength(0);
                 grid.ColumnDefinitions[2].Width = new GridLength(0);
+                Player.Margin = new Thickness(1, 1, 1, 0);
                 WindowState = WindowState.Maximized;
                 btnScreen.Background = VideoImageBrushs.Return;
                 menuScreen.Header = "退出全屏";
@@ -1500,6 +1509,7 @@ namespace VPlayer
                 grid.RowDefinitions[2].Height = new GridLength(1);
                 grid.ColumnDefinitions[0].Width = new GridLength(1);
                 grid.ColumnDefinitions[2].Width = new GridLength(1);
+                Player.Margin = new Thickness(0, 0, 0, 0);
                 WindowState = WindowState.Normal;
                 btnScreen.Background = VideoImageBrushs.Screen;
                 menuScreen.Header = "全屏";
@@ -1541,25 +1551,8 @@ namespace VPlayer
             isWindowMax = !isWindowMax;
         }
 
-        private void Player_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            switch (PlayOverActionMode)
-            {
-                case 0://playnext
-                    btnNext_Click(null, null);
-                    break;
-                case 1://playthis
-                    {
-                        Slider_Process.Value = 0;
-                        Slider_Process_KeyUp(null, null);
-                        break;
-                    }
-                case 2://donothing
-                    break;
-                default:
-                    break;
-            }
-        }
+
+
 
 
         /// <summary>
