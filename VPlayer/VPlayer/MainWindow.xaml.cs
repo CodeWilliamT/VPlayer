@@ -22,10 +22,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Xml.Linq;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace VPlayer
 {
-
     public class CustomNode : TreeViewItemBase
     {
         public CustomNode()
@@ -149,6 +149,7 @@ namespace VPlayer
 
         double preWidth = 630;
         double preHeight = 250;
+        double viewPercent = 1;
 
         int nowIdx = 0;
         bool isWindowMax;
@@ -159,6 +160,7 @@ namespace VPlayer
         int sec_logDelay, sec_logDelayMax = 6;//1为500毫秒
         DateTime time_LastMouseDown;
         POINT pi;
+        RotateTransform viewRotateTransform;
         DispatcherTimer timer_Process;
         DispatcherTimer timer_Time;
         DispatcherTimer timer_Sub;
@@ -276,6 +278,8 @@ namespace VPlayer
             List_MediaFileNodes = new List<CustomNode>();
             List_SubFiles = new List<FileInfo>();
             List_MediaFileNames = new List<string>();
+            viewRotateTransform = new RotateTransform();
+            Player.LayoutTransform= viewRotateTransform;
             RefreshFileTree();
             (menuPlayOverActions.Items[PlayOverActionMode] as System.Windows.Controls.MenuItem).IsChecked = true;
             PinList(isListPinning);
@@ -620,6 +624,25 @@ namespace VPlayer
 
         private void formWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            if (e.Key == Key.System&& Keyboard.Modifiers == ModifierKeys.Alt)
+            {
+                switch (e.SystemKey)
+                {
+                    case Key.Left:
+                        menuViewRClock90_Click(null, null);
+                        break;
+                    case Key.Right:
+                        menuViewClock90_Click(null, null);
+                        break;
+                    case Key.Up:
+                        menuViewZoomUp_Click(null, null);
+                    break;
+                    case Key.Down:
+                        menuViewZoomDown_Click(null, null);
+                        break;
+                }
+                return;
+            }
             switch (e.Key)
             {
                 case Key.End:
@@ -635,23 +658,17 @@ namespace VPlayer
                     }
                     break;
                 case Key.Up:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                    if (Keyboard.Modifiers==ModifierKeys.Control)
                         Slider_Speed.Value += Slider_Speed.Interval;
                     else
                         Slider_Voice.Value += Slider_Voice.Interval;
                     break;
                 case Key.Down:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                    if (Keyboard.Modifiers == ModifierKeys.Control)
                         Slider_Speed.Value -= Slider_Speed.Interval;
                     else
                         Slider_Voice.Value -= Slider_Voice.Interval;
                     break;
-                case Key.Left:
-                    btnLeft_Click(null, null);
-                    break;
-                case Key.Right:
-                    btnRight_Click(null, null);
-                    break; ;
                 case Key.Escape:
                     SetVideoMax(false);
                     break;
@@ -660,6 +677,18 @@ namespace VPlayer
                     break;
                 case Key.PageDown:
                     btnNext_Click(null, null);
+                    break;
+                case Key.Left:
+                    if (Keyboard.Modifiers== ModifierKeys.Control)
+                        Slider_Speed.Value += Slider_Speed.Interval;
+                    else
+                        Slider_Voice.Value += Slider_Voice.Interval;
+                    break;
+                case Key.Right:
+                    if (Keyboard.Modifiers == ModifierKeys.Control)
+                        Slider_Speed.Value -= Slider_Speed.Interval;
+                    else
+                        Slider_Voice.Value -= Slider_Voice.Interval;
                     break;
                     //default:
                     //    break;
@@ -670,6 +699,35 @@ namespace VPlayer
         {
             SaveRecord();
             AppConfigHelper.SaveObj(this);
+        }
+
+
+        private void menuViewClock90_Click(object sender, RoutedEventArgs e)
+        {
+            viewRotateTransform.Angle = (viewRotateTransform.Angle + 90) % 360;
+            LogInfo("媒体顺时针旋转90度");
+        }
+
+        private void menuViewRClock90_Click(object sender, RoutedEventArgs e)
+        {
+            viewRotateTransform.Angle = (viewRotateTransform.Angle - 90) % 360;
+            LogInfo("媒体逆时针旋转90度");
+        }
+
+        private void menuViewZoomUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (viewPercent + 0.25 > 2)
+                return;
+            viewPercent += 0.25;
+            Grid_Player_SizeChanged(null, null);
+        }
+
+        private void menuViewZoomDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (viewPercent - 0.25 <0)
+                return;
+            viewPercent -= 0.25;
+            Grid_Player_SizeChanged(null, null);
         }
 
         private void TreeView_File_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -1551,6 +1609,11 @@ namespace VPlayer
             isWindowMax = !isWindowMax;
         }
 
+        private void Grid_Player_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Player.Width = Grid_Player.ActualWidth * viewPercent;
+            Player.Height = Grid_Player.ActualWidth * viewPercent;
+        }
 
 
 
