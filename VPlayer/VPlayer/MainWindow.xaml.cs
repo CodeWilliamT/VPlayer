@@ -679,16 +679,10 @@ namespace VPlayer
                     btnNext_Click(null, null);
                     break;
                 case Key.Left:
-                    if (Keyboard.Modifiers== ModifierKeys.Control)
-                        Slider_Speed.Value += Slider_Speed.Interval;
-                    else
-                        Slider_Voice.Value += Slider_Voice.Interval;
+                    btnLeft_Click(null, null);
                     break;
                 case Key.Right:
-                    if (Keyboard.Modifiers == ModifierKeys.Control)
-                        Slider_Speed.Value -= Slider_Speed.Interval;
-                    else
-                        Slider_Voice.Value -= Slider_Voice.Interval;
+                    btnRight_Click(null, null);
                     break;
                     //default:
                     //    break;
@@ -716,17 +710,17 @@ namespace VPlayer
 
         private void menuViewZoomUp_Click(object sender, RoutedEventArgs e)
         {
-            if (viewPercent + 0.25 > 2)
+            if (viewPercent + 0.1 > 2)
                 return;
-            viewPercent += 0.25;
+            viewPercent += 0.1;
             Grid_Player_SizeChanged(null, null);
         }
 
         private void menuViewZoomDown_Click(object sender, RoutedEventArgs e)
         {
-            if (viewPercent - 0.25 <0)
+            if (viewPercent - 0.1 <0)
                 return;
-            viewPercent -= 0.25;
+            viewPercent -= 0.1;
             Grid_Player_SizeChanged(null, null);
         }
 
@@ -847,6 +841,18 @@ namespace VPlayer
             }
         }
 
+        private void btnView_Click(object sender, RoutedEventArgs e)
+        {
+            if (Canvas_View.Visibility == Visibility.Hidden)
+            {
+                Canvas_View.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Canvas_View.Visibility = Visibility.Hidden;
+            }
+
+        }
 
         private void Player_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -908,7 +914,15 @@ namespace VPlayer
 
         private void Player_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            int val = (int)Slider_Voice.Value + e.Delta / 24;
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                if (viewPercent + 0.1 * e.Delta / 120 < 0|| viewPercent + 0.1 * e.Delta / 120 >2)
+                    return;
+                viewPercent += 0.1* e.Delta / 120;
+                Grid_Player_SizeChanged(null, null);
+                return;
+            }
+            int val = (int)Slider_Voice.Value + e.Delta*5 / 120;
             Slider_Voice.Value = val < 0 ? 0 : val > 100 ? 100 : val;
         }
 
@@ -1556,7 +1570,6 @@ namespace VPlayer
                 grid.RowDefinitions[2].Height = new GridLength(0);
                 grid.ColumnDefinitions[0].Width = new GridLength(0);
                 grid.ColumnDefinitions[2].Width = new GridLength(0);
-                Player.Margin = new Thickness(1, 1, 1, 0);
                 WindowState = WindowState.Maximized;
                 btnScreen.Background = VideoImageBrushs.Return;
                 menuScreen.Header = "退出全屏";
@@ -1567,7 +1580,6 @@ namespace VPlayer
                 grid.RowDefinitions[2].Height = new GridLength(1);
                 grid.ColumnDefinitions[0].Width = new GridLength(1);
                 grid.ColumnDefinitions[2].Width = new GridLength(1);
-                Player.Margin = new Thickness(0, 0, 0, 0);
                 WindowState = WindowState.Normal;
                 btnScreen.Background = VideoImageBrushs.Screen;
                 menuScreen.Header = "全屏";
@@ -1614,6 +1626,7 @@ namespace VPlayer
             Player.Width = Grid_Player.ActualWidth * viewPercent;
             Player.Height = Grid_Player.ActualWidth * viewPercent;
         }
+
 
 
 
