@@ -36,18 +36,18 @@
                 <MenuItem Name="menuInstallHEVC" Header="从微软商城安装HEVC解码器" Click="menuInstallHEVC_Click"  />
             </ContextMenu>
         </Grid.ContextMenu>
-        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel">
+        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="270" />
             </Grid.ColumnDefinitions>
 
-            <Grid x:Name="Grid_CenterLeft" Grid.Column="0" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel">
+            <Grid x:Name="Grid_CenterLeft" Grid.Column="0" Margin="0,0,0,0" >
                 <Canvas x:Name="Canvas_Main" Background="#FF303030" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Grid x:Name="Grid_Main"  Canvas.Left="0" Canvas.Top="-35" Height="{Binding ActualHeight,ElementName=Grid_Form}" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1">
+                    <Grid x:Name="Grid_Main"  Canvas.Left="0" Canvas.Top="-35"  MouseWheel="Player_MouseWheel"  Height="{Binding ActualHeight,ElementName=Grid_Form}" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1">
                         <Grid x:Name="Grid_Player" SizeChanged="Grid_Player_SizeChanged" >
-                            <MediaElement x:Name="Player"  OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" MouseWheel="Player_MouseWheel" SizeChanged="Player_SizeChanged"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
+                            <MediaElement x:Name="Player"  OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" SizeChanged="Player_SizeChanged"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
                             <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
                             <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
                             <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
