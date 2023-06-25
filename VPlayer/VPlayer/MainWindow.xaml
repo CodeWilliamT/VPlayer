@@ -28,6 +28,8 @@
                     <MenuItem Name="menuViewRClock90" Header="逆时针旋转90度" Click="menuViewRClock90_Click" />
                     <MenuItem Name="menuViewZoomUp" Header="放大0.25(当前视窗)" Click="menuViewZoomUp_Click" />
                     <MenuItem Name="menuViewZoomDown" Header="缩小0.25(当前视窗)" Click="menuViewZoomDown_Click" />
+                    <MenuItem Name="menuViewLongerFit" Header="较长轴自适应" Click="menuViewLongerFit_Click" />
+                    <MenuItem Name="menuViewHeightFit" Header="高度自适应(可能遮盖横向两侧)" Click="menuViewHeightFit_Click" />
                 </MenuItem>
                 <MenuItem Name="menuOpenDir" Header="打开当前目录" Click="menuOpenDir_Click"/>
                 <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
@@ -47,7 +49,7 @@
                 <Canvas x:Name="Canvas_Main" Background="#FF303030" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Grid x:Name="Grid_Main"  Canvas.Left="0" Canvas.Top="-35"  MouseWheel="Player_MouseWheel"  Height="{Binding ActualHeight,ElementName=Grid_Form}" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1">
                         <Grid x:Name="Grid_Player" SizeChanged="Grid_Player_SizeChanged" >
-                            <MediaElement x:Name="Player"  OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" SizeChanged="Player_SizeChanged"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
+                            <MediaElement x:Name="Player" HorizontalAlignment="Center" VerticalAlignment="Center" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" SizeChanged="Player_SizeChanged"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
                             <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
                             <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
                             <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
@@ -149,11 +151,13 @@
                             <TextBlock x:Name="textBlock_speed" Margin="0,36,200,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="26" Foreground="White" Text="1.0" Height="19" Background="#00000000" HorizontalAlignment="Right"/>
                             <Slider x:Name="Slider_Speed" Margin="0,0,124,24" Width="78" Interval="1" Maximum="30" Value="10" ValueChanged="Slider_Speed_ValueChanged" SmallChange="1" HorizontalAlignment="Right" Height="18" VerticalAlignment="Bottom" Focusable="False" Cursor="Hand" ToolTip="加速/减速(Ctrl+↑/↓)"/>
 
-                            <Canvas x:Name="Canvas_View" ToolTip="画面" Height="124" Width="136" Background="#FF303030" Margin="0,-86,15,42" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Hidden">
+                            <Canvas x:Name="Canvas_View" ToolTip="画面" Height="155" Width="136" Background="#FF303030" Margin="0,-86,15,42" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Hidden">
                                 <Button Name="btnViewClock90" Content="顺时针旋转90度" Canvas.Left="0" Canvas.Top="0" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewClock90_Click" />
                                 <Button Name="btnViewRClock90" Content="逆时针旋转90度" Canvas.Left="0" Canvas.Top="31" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White"  Click="menuViewRClock90_Click" />
                                 <Button Name="btnViewZoomUp" Content="放大0.25(当前视窗)" Canvas.Left="0" Canvas.Top="62" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewZoomUp_Click" />
                                 <Button Name="btnViewZoomDown" Content="缩小0.25(当前视窗)" Canvas.Left="0" Canvas.Top="93" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewZoomDown_Click" />
+                                <Button Name="btnViewLongerFit" Content="较长轴自适应" Canvas.Left="0" Canvas.Top="124" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewLongerFit_Click" />
+                                <Button Name="btnViewHeightFit" Content="高度自适应(可能遮盖横向两侧)" Canvas.Left="0" Canvas.Top="124" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewHeightFit_Click" />
                             </Canvas>
 
                             <Canvas x:Name="Canvas_Voice" ToolTip="声音" Height="120" Width="35" Background="#FF303030" Margin="0,-86,93,42" HorizontalAlignment="Right" VerticalAlignment="Bottom">
@@ -189,8 +193,8 @@
 
             <Button x:Name="btnShowList"  Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="Black" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" Width="25" Height="130" Focusable="False" Cursor="Hand" />
 
-            <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC282828" HorizontalAlignment="Stretch" />
-            <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC383838" Foreground="#FFB1B1B1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0" MouseDoubleClick="TreeView_File_MouseDoubleClick" SizeChanged="TreeView_File_SizeChanged" >
+            <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC282828" HorizontalAlignment="Stretch" Focusable="False" />
+            <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC383838" Foreground="#FFB1B1B1" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0" MouseDoubleClick="TreeView_File_MouseDoubleClick" SizeChanged="TreeView_File_SizeChanged">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type local:CustomNode}" ItemsSource="{Binding Childs}">
                         <TextBlock Text="{Binding Name}">

@@ -278,13 +278,686 @@ namespace VPlayer
             List_MediaFileNodes = new List<CustomNode>();
             List_SubFiles = new List<FileInfo>();
             List_MediaFileNames = new List<string>();
-            viewRotateTransform = new RotateTransform();
-            Player.LayoutTransform= viewRotateTransform;
+            //viewRotateTransform = new RotateTransform();
+            //Player.LayoutTransform= viewRotateTransform;
             RefreshFileTree();
             (menuPlayOverActions.Items[PlayOverActionMode] as System.Windows.Controls.MenuItem).IsChecked = true;
             PinList(isListPinning);
         }
 
+        #region UI Functions
+        static DependencyObject VisualUpwardSearch<T>(DependencyObject source)
+        {
+            while (source != null && source.GetType() != typeof(T))
+                source = VisualTreeHelper.GetParent(source);
+
+            return source;
+        }
+
+        /// <summary>
+        /// 删除文件夹节点下所有文件的播放记录
+        /// </summary>
+        /// <param name="node"></param>
+        private void DeleteDirNodeRecord(CustomNode node)
+        {
+            try
+            {
+                foreach (CustomNode child in node.Childs)
+                {
+                    DeleteFileNodeRecord(child);
+                }
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+
+        /// <summary>
+        /// 删除文件节点的播放记录
+        /// </summary>
+        /// <param name="node"></param>
+        private void DeleteFileNodeRecord(CustomNode node)
+        {
+            try
+            {
+                RemoveRecord(node.FullName);
+                node.IsRecorded = false;
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        private void AddContextMenuToDirNode(CustomNode customNode)
+        {
+
+            customNode.ContextMenu = new System.Windows.Controls.ContextMenu();
+            System.Windows.Controls.MenuItem menuDeleteDirNodeRecord = new System.Windows.Controls.MenuItem();
+            menuDeleteDirNodeRecord.Header = "删除目录记录";
+            menuDeleteDirNodeRecord.Click += menuDeleteNodeRecord_Click;
+            System.Windows.Controls.MenuItem menuOpenDirNodeFolder = new System.Windows.Controls.MenuItem();
+            menuOpenDirNodeFolder.Header = "打开文件夹";
+            menuOpenDirNodeFolder.Click += menuOpenNodeFolder_Click;
+
+            System.Windows.Controls.MenuItem menuClearDirList = new System.Windows.Controls.MenuItem();
+            menuClearDirList.Header = "清空播放记录";
+            menuClearDirList.Click += menuClearList_Click;
+
+
+            customNode.ContextMenu.Items.Add(menuDeleteDirNodeRecord);
+            customNode.ContextMenu.Items.Add(menuOpenDirNodeFolder);
+            customNode.ContextMenu.Items.Add(menuClearDirList);
+
+        }
+
+        private void AddContextMenuToFileNode(CustomNode customNode)
+        {
+            customNode.ContextMenu = new System.Windows.Controls.ContextMenu();
+            System.Windows.Controls.MenuItem menuDeleteFileNodeRecord = new System.Windows.Controls.MenuItem();
+            menuDeleteFileNodeRecord.Header = "删除播放记录";
+            menuDeleteFileNodeRecord.Click += menuDeleteNodeRecord_Click;
+            System.Windows.Controls.MenuItem menuOpenFileNodeFolder = new System.Windows.Controls.MenuItem();
+            menuOpenFileNodeFolder.Header = "打开文件目录";
+            menuOpenFileNodeFolder.Click += menuOpenNodeFolder_Click;
+
+            System.Windows.Controls.MenuItem menuFileClearList = new System.Windows.Controls.MenuItem();
+            menuFileClearList.Header = "清空播放记录";
+            menuFileClearList.Click += menuClearList_Click;
+            customNode.ContextMenu.Items.Add(menuDeleteFileNodeRecord);
+            customNode.ContextMenu.Items.Add(menuOpenFileNodeFolder);
+            customNode.ContextMenu.Items.Add(menuFileClearList);
+
+        }
+
+        /// <summary>
+        /// 加文件夹节点到文件列表
+        /// </summary>
+        /// <param name="DirctoryName"></param>
+        private void AddDirectoryToListFile(string DirctoryName)
+        {
+            try
+            {
+                if (List_Dirctory.Contains(DirctoryName)) return;
+                CustomNode node = AddDirectoryToTreeView(DirctoryName);
+                node.IsSelected = true;
+                node.IsExpanded = true;
+                List_Dirctory.Add(DirctoryName);
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 加文件夹节点到文件列表
+        /// </summary>
+        /// <param name="DirctoryName"></param>
+        private CustomNode AddDirectoryToTreeView(string DirctoryName)
+        {
+            try
+            {
+                DirectoryInfo path = new DirectoryInfo(DirctoryName);
+                FileInfo[] Dir = path.GetFiles("*", SearchOption.AllDirectories);
+                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName, Level = 0 };
+                AddContextMenuToDirNode(dirNode);
+                int i = List_MediaFileNodes.Count;
+                foreach (FileInfo d in Dir)
+                {
+                    if (supportedVideos.Contains(d.Extension.ToLower()))
+                    {
+                        CustomNode fileNode = new CustomNode()
+                        {
+                            Name = d.FullName.Remove(0, path.FullName.Length + 1),
+                            FullName = d.FullName,
+                            Level = 1
+                        };
+                        AddContextMenuToFileNode(fileNode);
+                        int record = LoadRecord(d.FullName);
+                        fileNode.IsRecorded = record > 0;
+                        dirNode.Childs.Add(fileNode);
+                        List_MediaFileNodes.Add(fileNode);
+                        List_MediaFileNames.Add(d.FullName);
+                        i++;
+                    }
+                }
+                TreeView_File.Items.Add(dirNode);
+                return dirNode;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+
+
+        /// <summary>
+        /// 刷新文件列表树
+        /// </summary>
+        private void RefreshFileTree()
+        {
+            try
+            {
+                TreeView_File.Items.Clear();
+                List_SubFiles.Clear();
+                List_MediaFileNodes.Clear();
+                List_MediaFileNames.Clear();
+                CustomNode node;
+                foreach (var d in List_Dirctory)
+                {
+                    if (!Directory.Exists(d))
+                    {
+                        continue;
+                    }
+                    node = AddDirectoryToTreeView(d);
+                    node.IsExpanded = true;
+                }
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 打印Log信息
+        /// </summary>
+        /// <param name="str"></param>
+        private void LogInfo(string str)
+        {
+            textBlock_Log.Text = str;
+            sec_logDelay = 0;
+        }
+        /// <summary>
+        /// 播放媒体文件
+        /// </summary>
+        /// <param name="fileName"></param>
+        private void OpenMediaFile(string fileName)
+        {
+            try
+            {
+                if (fileName == null || fileName == "") return;
+                if (!File.Exists(fileName)) return;
+                if (playFileFlag)
+                {
+                    if (Player.Source != null)
+                    {
+                        nowIdx = List_MediaFileNames.IndexOf(nowFileName);
+                        List_MediaFileNodes[nowIdx].IsUsing = false;
+                        List_MediaFileNodes[nowIdx].IsRecorded = true;
+                        if (Player.NaturalDuration.HasTimeSpan)
+                        {
+                            SaveRecord();
+                            if (subItems != null && subItems.Count() > 0)
+                                AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
+                        }
+                    }
+                    SetVideoMode(false);
+                    Player.Stop();
+                    Player.Close();
+                }
+
+                playFileFlag = true;
+                PlayRecord(fileName);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.ToString());
+            }
+        }
+
+
+        private void OpenFolder(string folderName)
+        {
+            try
+            {
+                DirectoryInfo Path = new DirectoryInfo(folderName);
+                FileInfo[] Dir = Path.GetFiles("*", SearchOption.AllDirectories);
+
+                List<FileInfo> List_MediaFilesTmp = new List<FileInfo>();
+                List_SubFiles.Clear();
+
+                foreach (FileInfo d in Dir)
+                {
+                    if (supportedVideos.Contains(d.Extension.ToLower()))
+                    {
+                        List_MediaFilesTmp.Add(d);
+                    }
+                    if (supportedSubs.Contains(d.Extension.ToLower()))
+                    {
+                        List_SubFiles.Add(d);
+                    }
+                }
+                if (List_MediaFilesTmp.Count == 0)
+                {
+                    if (List_SubFiles.Count > 0)
+                        OpenSubFile(List_SubFiles.First().FullName);
+                }
+                else
+                {
+                    int idx = List_MediaFileNodes.Count;
+                    AddDirectoryToListFile(folderName);
+                    if (List_MediaFileNodes.Count > idx)
+                        OpenMediaFile(List_MediaFileNodes[idx].FullName);
+                }
+            }
+            catch
+            {
+                return;
+            }
+        }
+        /// <summary>
+        /// 载入字幕文件
+        /// </summary>
+        /// <param name="fileName"></param>
+        private bool OpenSubFile(string fileName)
+        {
+            if (Player.Source == null) return false;
+            if (fileName == null || fileName == "") return false;
+            if (!File.Exists(fileName)) return false;
+            nowSubName = fileName;
+            FileInfo fileInfo = new FileInfo(fileName);
+            if (!supportedSubs.Contains(fileInfo.Extension.ToLower()))
+            {
+                return false;
+            }
+            try
+            {
+                if (subItems != null)
+                    subItems.Clear();
+                var subParse = new SubtitlesParser.Classes.Parsers.SubParser();
+                using (StreamReader sr = new StreamReader(fileName))
+                {
+                    subItems = subParse.ParseStream(sr.BaseStream);
+                }
+                LogInfo("已加载字幕" + fileInfo.Name);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.ToString());
+            }
+            return false;
+        }
+        /// <summary>
+        /// 使得容器控件悬浮可见或长期可见
+        /// </summary>
+        /// <param name="panel">容器</param>
+        /// <param name="flag">true移动至容器表面可见，false恢复至长期可见</param>
+        private void SetPanelMotionVisible(System.Windows.Controls.Panel panel, bool flag)
+        {
+            if (flag)
+            {
+                panel.MouseEnter += Menu_MouseEnter;
+                panel.MouseLeave += Menu_MouseLeave;
+            }
+            else
+            {
+                panel.MouseEnter -= Menu_MouseEnter;
+                panel.MouseLeave -= Menu_MouseLeave;
+            }
+        }
+
+
+        /// <summary>
+        /// 独立挂起显示文件列表
+        /// </summary>
+        /// <param name="flag"></param>
+        private void PinList(bool flag)
+        {
+            //if (isListPinning == flag) return;
+            if (flag)
+            {
+                ShowList(true);
+                isListPinning = true;
+                btnPinList.Background = VideoImageBrushs.Pin;
+                TreeView_File_SizeChanged(null, null);
+
+                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
+
+                ShowList(true);
+            }
+            else
+            {
+                isListPinning = false;
+                btnPinList.Background = VideoImageBrushs.NotPin;
+                var binding = new System.Windows.Data.Binding("ActualWidth") { Source = this.Grid_Form };
+                this.Grid_Main.SetBinding(Grid.WidthProperty, binding);
+
+                if (playFileFlag)
+                {
+                    TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+                    GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
+                }
+                else
+                {
+                    TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, 0, TreeView_File.Margin.Right, 0);
+                    GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, 0, GridSplitter_List.Margin.Right, 0);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 显示文件列表
+        /// </summary>
+        /// <param name="flag"></param>
+        private void ShowList(bool flag)
+        {
+            if (flag)
+            {
+                btnPinList.Visibility = Visibility.Visible;
+                TreeView_File.Visibility = Visibility.Visible;
+                GridSplitter_List.Visibility = Visibility.Visible;
+
+                btnShowList.Margin = new Thickness(0, 0, 0, 0);
+                btnShowList.Content = ">";
+
+                btnShowList.Opacity = 1;
+                btnShowList.MouseEnter -= Control_MouseEnter;
+                btnShowList.MouseLeave -= Control_MouseLeave;
+                Grid_Menu.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                Grid_Menu.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value + 12);
+                Grid_Top.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                Grid_Top.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value + 12);
+                if (isListPinning)
+                {
+                    TreeView_File_SizeChanged(null, null);
+                    Canvas_Top.Visibility = Visibility.Visible;
+                    Grid_Menu.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                if (isListPinning)
+                {
+                    var binding = new System.Windows.Data.Binding("ActualWidth") { Source = this.Grid_Form };
+                    this.Grid_Main.SetBinding(Grid.WidthProperty, binding);
+                }
+                if (playFileFlag)
+                {
+                    btnShowList.Opacity = 0;
+                    btnShowList.MouseEnter += Control_MouseEnter;
+                    btnShowList.MouseLeave += Control_MouseLeave;
+                    Canvas_Top.Visibility = Visibility.Visible;
+                    Grid_Menu.Visibility = Visibility.Visible;
+                }
+                Grid_Menu.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                Grid_Top.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+                Grid_Menu.Width = System.Double.NaN;
+                Grid_Top.Width = System.Double.NaN;
+                btnPinList.Visibility = Visibility.Hidden;
+                TreeView_File.Visibility = Visibility.Hidden;
+                GridSplitter_List.Visibility = Visibility.Hidden;
+                btnShowList.Margin = new Thickness(0, 0, -(Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value), 0);
+
+                btnShowList.Background = null;
+                btnShowList.Content = "<";
+            }
+        }
+
+        /// <summary>
+        /// 显示音量控制器
+        /// </summary>
+        /// <param name="flag"></param>
+        private void ShowVoiceCofig(bool flag)
+        {
+
+            if (flag)
+            {
+                Canvas_Voice.Visibility = Visibility.Visible;
+                btnVoice.Tag = true;
+            }
+            else
+            {
+                Canvas_Voice.Visibility = Visibility.Hidden;
+                btnVoice.Tag = false;
+            }
+        }
+        private void SaveRecord()
+        {
+            if (Player.Source != null)
+                if (Player.NaturalDuration.HasTimeSpan)
+                {
+                    AppConfigHelper.SaveKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
+                    if (subItems != null && subItems.Count() > 0) AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
+
+                }
+        }
+        private int LoadRecord(string fileName)
+        {
+            return (int)AppConfigHelper.LoadDouble("FileRecord-" + fileName);
+        }
+        private void RemoveRecord(string fileName)
+        {
+            AppConfigHelper.RemoveKey("FileRecord-" + fileName);
+        }
+        private void PlayRecord(string fileName)
+        {
+            FileInfo fileInfo = new FileInfo(fileName);
+            //判断后缀是否支持
+            if (!supportedVideos.Contains(fileInfo.Extension.ToLower()))
+            {
+                return;
+            }
+            //更新媒体目录
+            if (!List_MediaFileNames.Contains(fileInfo.FullName))
+            {
+                AddDirectoryToListFile(fileInfo.DirectoryName);
+            }
+
+            nowFileName = fileInfo.FullName;
+            nowIdx = List_MediaFileNames.IndexOf(nowFileName);
+            Player.Source = new Uri(fileName);
+            Player.LoadedBehavior = MediaState.Manual;
+            Slider_Voice.Value = defaultVoice;
+            Player.Volume = 1.0 * defaultVoice / Slider_Voice.Maximum;
+            label_NowFile.Content = fileInfo.Name;
+            List_MediaFileNodes[nowIdx].IsUsing = true;
+
+            SetVideoMode(true);
+            DateTime t = DateTime.Now;
+
+
+            while (!Player.NaturalDuration.HasTimeSpan)//等待媒体开始播放
+            {
+                System.Threading.Thread.Sleep(50);
+                if (DateTime.Now.Subtract(t).TotalMilliseconds > 5000)
+                {
+                    btnStop_Click(null, null);
+                    SetVideoMode(false);
+                    if (System.Windows.MessageBox.Show(
+                "文件损坏，或者不支持此种视频格式。\n可能是未安装HEVC解码器，是否从微软商场安装？", "打开失败", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            string url = "ms-windows-store://pdp/?ProductId=9n4wgh0z6vhq";
+                            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                        }
+                    }
+                    return;
+                }
+            }
+
+            nowPosition = LoadRecord(nowFileName);
+            if (nowPosition + 1000 < Player.NaturalDuration.TimeSpan.TotalMilliseconds)
+                Player.Position = new TimeSpan(0, 0, 0, 0, nowPosition);
+
+            if (subItems != null)
+            {
+                subItems.Clear();
+                tbSub.Text = "";
+            }
+            string subfile = AppConfigHelper.LoadKey("FileRecordSub-" + nowFileName);
+            if (subfile != "")
+            {
+                if (OpenSubFile(subfile))
+                    goto _end;
+            }
+            string fileNoExPath = fileInfo.Name.Remove(fileInfo.Name.Length - fileInfo.Extension.Length, fileInfo.Extension.Length);
+            var Trans = new[] { "_Trans", "" };
+            var mids = new[] { "", "_Subtitles01", "_Subtitles02" };
+            foreach (var trans in Trans)
+            {
+                for (int i= 0;i<10;i++)
+                {
+                    string mid = i == 0 ? "" : ("_Subtitles0" + i);
+                    foreach (var subEx in supportedSubs)
+                    {
+                        if (OpenSubFile(fileInfo.DirectoryName + "\\" + fileNoExPath + mid + trans + subEx))
+                            goto _end;
+                        if (OpenSubFile(fileInfo.DirectoryName + "\\" + "Subs" + trans + "\\" + fileNoExPath + mid + subEx))
+                            goto _end;
+                        if (OpenSubFile(fileInfo.DirectoryName + "\\" + "Sub" + trans + "\\" + fileNoExPath + mid + subEx))
+                            goto _end;
+                    }
+                }
+            }
+
+        _end:
+            //UI
+            Slider_Process.Maximum = (int)Player.NaturalDuration.TimeSpan.TotalSeconds;
+            Slider_Process.Visibility = Visibility.Visible;
+            btnLeft.Visibility = Visibility.Visible;
+            btnRight.Visibility = Visibility.Visible;
+            Label_Process.Visibility = Visibility.Visible;
+            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
+            GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
+            SetPanelMotionVisible(Grid_Top, true);
+            SetPanelMotionVisible(Grid_Menu, true);
+            Canvas_File.Visibility = Visibility.Hidden;
+            btnStop.IsEnabled = true;
+            Grid_Main.Focus();
+            if (!isListPinning && btnShowList.Content.ToString() == ">")
+                ShowList(true);
+
+            if (nowIdx != 0)
+                btnLast.IsEnabled = true;
+            if (nowIdx != List_MediaFileNodes.Count - 1)
+                btnNext.IsEnabled = true;
+        }
+        private void SetVideoMax(bool flag)
+        {
+            ControlTemplate customWindowTemplate = App.Current.Resources["CustomWindowTemplete"] as ControlTemplate;
+            var grid = customWindowTemplate.FindName("ResizingGrid", this) as Grid;
+            if (flag)
+            {
+                grid.RowDefinitions[0].Height = new GridLength(0);
+                grid.RowDefinitions[2].Height = new GridLength(0);
+                grid.ColumnDefinitions[0].Width = new GridLength(0);
+                grid.ColumnDefinitions[2].Width = new GridLength(0);
+                WindowState = WindowState.Maximized;
+                btnScreen.Background = VideoImageBrushs.Return;
+                menuScreen.Header = "退出全屏";
+            }
+            else
+            {
+                grid.RowDefinitions[0].Height = new GridLength(1);
+                grid.RowDefinitions[2].Height = new GridLength(1);
+                grid.ColumnDefinitions[0].Width = new GridLength(1);
+                grid.ColumnDefinitions[2].Width = new GridLength(1);
+                WindowState = WindowState.Normal;
+                btnScreen.Background = VideoImageBrushs.Screen;
+                menuScreen.Header = "全屏";
+            }
+        }
+        private void SetWindowMax()
+        {
+            ControlTemplate customWindowTemplate = App.Current.Resources["CustomWindowTemplete"] as ControlTemplate;
+            var grid = customWindowTemplate.FindName("ResizingGrid", this) as Grid;
+            Rect rect = SystemParameters.WorkArea;
+            if (!isWindowMax)
+            {
+                btnMax.Background = VideoImageBrushs.Return;
+                grid.RowDefinitions[0].Height = new GridLength(0);
+                grid.RowDefinitions[2].Height = new GridLength(0);
+                grid.ColumnDefinitions[0].Width = new GridLength(0);
+                grid.ColumnDefinitions[2].Width = new GridLength(0);
+                WindowState = WindowState.Normal;
+                this.Width = rect.Width + 22;
+                this.Height = rect.Height + 22;
+                this.Top = -11;
+                this.Left = -11;
+            }
+            else
+            {
+                btnMax.Background = VideoImageBrushs.Max;
+                grid.RowDefinitions[0].Height = new GridLength(1);
+                grid.RowDefinitions[2].Height = new GridLength(1);
+                grid.ColumnDefinitions[0].Width = new GridLength(1);
+                grid.ColumnDefinitions[2].Width = new GridLength(1);
+                WindowState = WindowState.Normal;
+                this.Width = defaultWidth;
+                this.Height = defaultHeight;
+                this.Top = (rect.Height - defaultHeight) / 2;
+                this.Left = (rect.Width - defaultWidth) / 2;
+
+            }
+            btnScreen.Background = VideoImageBrushs.Screen;
+            isWindowMax = !isWindowMax;
+        }
+
+        private void Grid_Player_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Player.Width = Grid_Player.ActualWidth * viewPercent;
+            Player.Height = Grid_Player.ActualHeight * viewPercent;
+        }
+
+
+
+
+
+        /// <summary>
+        /// 配置是否显示最前
+        /// </summary>
+        /// <param name="flag"></param>
+        private void SetTop(bool flag)
+        {
+
+            Topmost = flag;
+            menuTop.IsChecked = flag;
+            if (flag)
+            {
+                btnTop.Background = VideoImageBrushs.Pin;
+            }
+            else
+            {
+                btnTop.Background = VideoImageBrushs.NotPin;
+            }
+        }
+        /// <summary>
+        /// 使得视频播放或暂停
+        /// </summary>
+        /// <param name="flag"></param>
+        private void SetVideoMode(bool flag)
+        {
+            if (Player.Source == null) return;
+            if (flag)
+            {
+                Player.Play();
+                timer_Process.Start();
+                timer_Sub.Start();
+                btnStart.Background = VideoImageBrushs.Pause;
+                playingFlag = true;
+            }
+            else
+            {
+                timer_Process.Stop();
+                timer_Sub.Stop();
+                if (Player.HasAudio || Player.HasVideo)
+                    Player.Pause();
+                btnStart.Background = VideoImageBrushs.Start;
+                playingFlag = false;
+            }
+        }
+
+
+        #endregion
         /// <summary>
         /// 异常处理
         /// </summary>
@@ -710,7 +1383,7 @@ namespace VPlayer
 
         private void menuViewZoomUp_Click(object sender, RoutedEventArgs e)
         {
-            if (viewPercent + 0.1 > 2)
+            if (viewPercent + 0.1 > 4)
                 return;
             viewPercent += 0.1;
             Grid_Player_SizeChanged(null, null);
@@ -722,6 +1395,23 @@ namespace VPlayer
                 return;
             viewPercent -= 0.1;
             Grid_Player_SizeChanged(null, null);
+        }
+
+        private void menuViewLongerFit_Click(object sender, RoutedEventArgs e)
+        {
+
+            viewPercent = 1;
+            Grid_Player_SizeChanged(null, null);
+            //viewRotateTransform.Angle = 0;
+        }
+        private void menuViewHeightFit_Click(object sender, RoutedEventArgs e)
+        {
+            viewPercent = 1;
+            double x = 1.0 * Player.NaturalVideoWidth * Grid_Player.ActualHeight / (Player.NaturalVideoHeight * Grid_Player.ActualWidth);
+            if (x > 0.99)
+                viewPercent = x;
+            Grid_Player_SizeChanged(null, null);
+            //viewRotateTransform.Angle = 0;
         }
 
         private void TreeView_File_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -876,12 +1566,16 @@ namespace VPlayer
 
         private void TreeView_File_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (isListPinning && TreeView_File.Visibility == Visibility.Visible)
+            if (TreeView_File.Visibility == Visibility.Hidden)
+                return;
+            if (isListPinning)
             {
                 Grid_Main.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value + 12);
                 Canvas_File.Margin=new Thickness(Grid_Main.Width / 2.0 - formWindow.Width/2.0, Canvas_File.Margin.Top,
                     Canvas_File.Margin.Right, Canvas_File.Margin.Bottom);
             }
+            Grid_Top.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value + 12);
+            Grid_Menu.Width = formWindow.Width - (Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value + 12);
         }
 
         private void Grid_Form_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -916,7 +1610,7 @@ namespace VPlayer
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                if (viewPercent + 0.1 * e.Delta / 120 < 0|| viewPercent + 0.1 * e.Delta / 120 >2)
+                if (viewPercent + 0.1 * e.Delta / 120 < 0|| viewPercent + 0.1 * e.Delta / 120 >4)
                     return;
                 viewPercent += 0.1* e.Delta / 120;
                 Grid_Player_SizeChanged(null, null);
@@ -1018,664 +1712,5 @@ namespace VPlayer
             }
         }
 
-        #region UI Functions
-        static DependencyObject VisualUpwardSearch<T>(DependencyObject source)
-        {
-            while (source != null && source.GetType() != typeof(T))
-                source = VisualTreeHelper.GetParent(source);
-
-            return source;
-        }
-
-        /// <summary>
-        /// 删除文件夹节点下所有文件的播放记录
-        /// </summary>
-        /// <param name="node"></param>
-        private void DeleteDirNodeRecord(CustomNode node)
-        {
-            try
-            {
-                foreach (CustomNode child in node.Childs)
-                {
-                    DeleteFileNodeRecord(child);
-                }
-            }
-            catch
-            {
-                return;
-            }
-        }
-
-
-        /// <summary>
-        /// 删除文件节点的播放记录
-        /// </summary>
-        /// <param name="node"></param>
-        private void DeleteFileNodeRecord(CustomNode node)
-        {
-            try
-            {
-                RemoveRecord(node.FullName);
-                node.IsRecorded = false;
-            }
-            catch
-            {
-                return;
-            }
-        }
-
-        private void AddContextMenuToDirNode(CustomNode customNode)
-        {
-
-            customNode.ContextMenu = new System.Windows.Controls.ContextMenu();
-            System.Windows.Controls.MenuItem menuDeleteDirNodeRecord = new System.Windows.Controls.MenuItem();
-            menuDeleteDirNodeRecord.Header = "删除播放目录";
-            menuDeleteDirNodeRecord.Click += menuDeleteNodeRecord_Click;
-            System.Windows.Controls.MenuItem menuOpenDirNodeFolder = new System.Windows.Controls.MenuItem();
-            menuOpenDirNodeFolder.Header = "打开文件夹";
-            menuOpenDirNodeFolder.Click += menuOpenNodeFolder_Click;
-
-            System.Windows.Controls.MenuItem menuClearDirList = new System.Windows.Controls.MenuItem();
-            menuClearDirList.Header = "清空播放记录";
-            menuClearDirList.Click += menuClearList_Click;
-
-
-            customNode.ContextMenu.Items.Add(menuDeleteDirNodeRecord);
-            customNode.ContextMenu.Items.Add(menuOpenDirNodeFolder);
-            customNode.ContextMenu.Items.Add(menuClearDirList);
-
-        }
-
-        private void AddContextMenuToFileNode(CustomNode customNode)
-        {
-            customNode.ContextMenu = new System.Windows.Controls.ContextMenu();
-            System.Windows.Controls.MenuItem menuDeleteFileNodeRecord = new System.Windows.Controls.MenuItem();
-            menuDeleteFileNodeRecord.Header = "删除播放记录";
-            menuDeleteFileNodeRecord.Click += menuDeleteNodeRecord_Click;
-            System.Windows.Controls.MenuItem menuOpenFileNodeFolder = new System.Windows.Controls.MenuItem();
-            menuOpenFileNodeFolder.Header = "打开文件目录";
-            menuOpenFileNodeFolder.Click += menuOpenNodeFolder_Click;
-
-            System.Windows.Controls.MenuItem menuFileClearList = new System.Windows.Controls.MenuItem();
-            menuFileClearList.Header = "清空播放记录";
-            menuFileClearList.Click += menuClearList_Click;
-            customNode.ContextMenu.Items.Add(menuDeleteFileNodeRecord);
-            customNode.ContextMenu.Items.Add(menuOpenFileNodeFolder);
-            customNode.ContextMenu.Items.Add(menuFileClearList);
-
-        }
-
-        /// <summary>
-        /// 加文件夹节点到文件列表
-        /// </summary>
-        /// <param name="DirctoryName"></param>
-        private void AddDirectoryToListFile(string DirctoryName)
-        {
-            try
-            {
-                if (List_Dirctory.Contains(DirctoryName)) return;
-                CustomNode node = AddDirectoryToTreeView(DirctoryName);
-                node.IsSelected = true;
-                node.IsExpanded = true;
-                List_Dirctory.Add(DirctoryName);
-            }
-            catch
-            {
-                return;
-            }
-        }
-
-        /// <summary>
-        /// 加文件夹节点到文件列表
-        /// </summary>
-        /// <param name="DirctoryName"></param>
-        private CustomNode AddDirectoryToTreeView(string DirctoryName)
-        {
-            try
-            {
-                DirectoryInfo path = new DirectoryInfo(DirctoryName);
-                FileInfo[] Dir = path.GetFiles("*", SearchOption.AllDirectories);
-                CustomNode dirNode = new CustomNode() { Name = path.Name, FullName = path.FullName, Level = 0 };
-                AddContextMenuToDirNode(dirNode);
-                int i = List_MediaFileNodes.Count;
-                foreach (FileInfo d in Dir)
-                {
-                    if (supportedVideos.Contains(d.Extension.ToLower()))
-                    {
-                        CustomNode fileNode = new CustomNode()
-                        {
-                            Name = d.FullName.Remove(0, path.FullName.Length + 1),
-                            FullName = d.FullName,
-                            Level = 1
-                        };
-                        AddContextMenuToFileNode(fileNode);
-                        int record = LoadRecord(d.FullName);
-                        fileNode.IsRecorded = record > 0;
-                        dirNode.Childs.Add(fileNode);
-                        List_MediaFileNodes.Add(fileNode);
-                        List_MediaFileNames.Add(d.FullName);
-                        i++;
-                    }
-                }
-                TreeView_File.Items.Add(dirNode);
-                return dirNode;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-
-
-        /// <summary>
-        /// 刷新文件列表树
-        /// </summary>
-        private void RefreshFileTree()
-        {
-            try
-            {
-                TreeView_File.Items.Clear();
-                List_SubFiles.Clear();
-                List_MediaFileNodes.Clear();
-                List_MediaFileNames.Clear();
-                CustomNode node;
-                foreach (var d in List_Dirctory)
-                {
-                    if (!Directory.Exists(d))
-                    {
-                        continue;
-                    }
-                    node = AddDirectoryToTreeView(d);
-                    node.IsExpanded = true;
-                }
-            }
-            catch
-            {
-                return;
-            }
-        }
-
-        /// <summary>
-        /// 打印Log信息
-        /// </summary>
-        /// <param name="str"></param>
-        private void LogInfo(string str)
-        {
-            textBlock_Log.Text = str;
-            sec_logDelay = 0;
-        }
-        /// <summary>
-        /// 播放媒体文件
-        /// </summary>
-        /// <param name="fileName"></param>
-        private void OpenMediaFile(string fileName)
-        {
-            try
-            {
-                if (fileName == null || fileName == "") return;
-                if (!File.Exists(fileName)) return;
-                if (playFileFlag)
-                {
-                    if (Player.Source != null)
-                    {
-                        nowIdx = List_MediaFileNames.IndexOf(nowFileName);
-                        List_MediaFileNodes[nowIdx].IsUsing = false;
-                        List_MediaFileNodes[nowIdx].IsRecorded = true;
-                        if (Player.NaturalDuration.HasTimeSpan)
-                        {
-                            SaveRecord();
-                            if (subItems != null && subItems.Count() > 0)
-                                AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
-                        }
-                    }
-                    SetVideoMode(false);
-                    Player.Stop();
-                    Player.Close();
-                }
-
-                playFileFlag = true;
-                PlayRecord(fileName);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.ToString());
-            }
-        }
-
-
-        private void OpenFolder(string folderName)
-        {
-            try
-            {
-                DirectoryInfo Path = new DirectoryInfo(folderName);
-                FileInfo[] Dir = Path.GetFiles("*", SearchOption.AllDirectories);
-
-                List<FileInfo> List_MediaFilesTmp = new List<FileInfo>();
-                List_SubFiles.Clear();
-
-                foreach (FileInfo d in Dir)
-                {
-                    if (supportedVideos.Contains(d.Extension.ToLower()))
-                    {
-                        List_MediaFilesTmp.Add(d);
-                    }
-                    if (supportedSubs.Contains(d.Extension.ToLower()))
-                    {
-                        List_SubFiles.Add(d);
-                    }
-                }
-                if (List_MediaFilesTmp.Count == 0)
-                {
-                    if (List_SubFiles.Count > 0)
-                        OpenSubFile(List_SubFiles.First().FullName);
-                }
-                else
-                {
-                    int idx = List_MediaFileNodes.Count;
-                    AddDirectoryToListFile(folderName);
-                    if (List_MediaFileNodes.Count > idx)
-                        OpenMediaFile(List_MediaFileNodes[idx].FullName);
-                }
-            }
-            catch
-            {
-                return;
-            }
-        }
-        /// <summary>
-        /// 载入字幕文件
-        /// </summary>
-        /// <param name="fileName"></param>
-        private bool OpenSubFile(string fileName)
-        {
-            if (Player.Source == null) return false;
-            if (fileName == null || fileName == "") return false;
-            if (!File.Exists(fileName)) return false;
-            nowSubName = fileName;
-            FileInfo fileInfo = new FileInfo(fileName);
-            if (!supportedSubs.Contains(fileInfo.Extension.ToLower()))
-            {
-                return false;
-            }
-            try
-            {
-                if (subItems != null)
-                    subItems.Clear();
-                var subParse = new SubtitlesParser.Classes.Parsers.SubParser();
-                using (StreamReader sr = new StreamReader(fileName))
-                {
-                    subItems = subParse.ParseStream(sr.BaseStream);
-                }
-                LogInfo("已加载字幕" + fileInfo.Name);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.ToString());
-            }
-            return false;
-        }
-        /// <summary>
-        /// 使得容器控件悬浮可见或长期可见
-        /// </summary>
-        /// <param name="panel">容器</param>
-        /// <param name="flag">true移动至容器表面可见，false恢复至长期可见</param>
-        private void SetPanelMotionVisible(System.Windows.Controls.Panel panel, bool flag)
-        {
-            if (flag)
-            {
-                panel.MouseEnter += Menu_MouseEnter;
-                panel.MouseLeave += Menu_MouseLeave;
-            }
-            else
-            {
-                panel.MouseEnter -= Menu_MouseEnter;
-                panel.MouseLeave -= Menu_MouseLeave;
-            }
-        }
-
-
-        /// <summary>
-        /// 独立挂起显示文件列表
-        /// </summary>
-        /// <param name="flag"></param>
-        private void PinList(bool flag)
-        {
-            //if (isListPinning == flag) return;
-            if (flag)
-            {
-                ShowList(true);
-                isListPinning = true;
-                btnPinList.Background = VideoImageBrushs.Pin;
-                TreeView_File_SizeChanged(null, null);
-
-                TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
-                GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
-
-                ShowList(true);
-            }
-            else
-            {
-                isListPinning = false;
-                btnPinList.Background = VideoImageBrushs.NotPin;
-                var binding = new System.Windows.Data.Binding("ActualWidth") { Source = this.Grid_Form };
-                this.Grid_Main.SetBinding(Grid.WidthProperty, binding);
-
-                if (playFileFlag)
-                {
-                    TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
-                    GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
-                }
-                else
-                {
-                    TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, 0, TreeView_File.Margin.Right, 0);
-                    GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, 0, GridSplitter_List.Margin.Right, 0);
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// 显示文件列表
-        /// </summary>
-        /// <param name="flag"></param>
-        private void ShowList(bool flag)
-        {
-            if (flag)
-            {
-                btnPinList.Visibility = Visibility.Visible;
-                TreeView_File.Visibility = Visibility.Visible;
-                GridSplitter_List.Visibility = Visibility.Visible;
-
-                btnShowList.Margin = new Thickness(0, 0, 0, 0);
-                btnShowList.Content = ">";
-
-                btnShowList.Opacity = 1;
-                btnShowList.MouseEnter -= Control_MouseEnter;
-                btnShowList.MouseLeave -= Control_MouseLeave;
-                if (!isListPinning)
-                {
-                    if (playFileFlag)
-                    {
-                        Canvas_Top.Visibility = Visibility.Hidden;
-                        Grid_Menu.Visibility = Visibility.Hidden;
-                    }
-                }
-                else
-                {
-                    TreeView_File_SizeChanged(null, null);
-                    Canvas_Top.Visibility = Visibility.Visible;
-                    Grid_Menu.Visibility = Visibility.Visible;
-                }
-            }
-            else
-            {
-                if (isListPinning)
-                {
-                    var binding = new System.Windows.Data.Binding("ActualWidth") { Source = this.Grid_Form };
-                    this.Grid_Main.SetBinding(Grid.WidthProperty, binding);
-                }
-                if (playFileFlag)
-                {
-                    btnShowList.Opacity = 0;
-                    btnShowList.MouseEnter += Control_MouseEnter;
-                    btnShowList.MouseLeave += Control_MouseLeave;
-                    Canvas_Top.Visibility = Visibility.Visible;
-                    Grid_Menu.Visibility = Visibility.Visible;
-                }
-                btnPinList.Visibility = Visibility.Hidden;
-                TreeView_File.Visibility = Visibility.Hidden;
-                GridSplitter_List.Visibility = Visibility.Hidden;
-                btnShowList.Margin = new Thickness(0, 0, -(Grid_Center.ColumnDefinitions[1].Width.Value + Grid_Center.ColumnDefinitions[2].Width.Value), 0);
-
-                btnShowList.Background = null;
-                btnShowList.Content = "<";
-            }
-        }
-
-        /// <summary>
-        /// 显示音量控制器
-        /// </summary>
-        /// <param name="flag"></param>
-        private void ShowVoiceCofig(bool flag)
-        {
-
-            if (flag)
-            {
-                Canvas_Voice.Visibility = Visibility.Visible;
-                btnVoice.Tag = true;
-            }
-            else
-            {
-                Canvas_Voice.Visibility = Visibility.Hidden;
-                btnVoice.Tag = false;
-            }
-        }
-        private void SaveRecord()
-        {
-            if (Player.Source != null)
-                if (Player.NaturalDuration.HasTimeSpan)
-                {
-                    AppConfigHelper.SaveKey("FileRecord-" + nowFileName, Player.Position.TotalMilliseconds.ToString());
-                    if (subItems != null && subItems.Count() > 0) AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
-
-                }
-        }
-        private int LoadRecord(string fileName)
-        {
-            return (int)AppConfigHelper.LoadDouble("FileRecord-" + fileName);
-        }
-        private void RemoveRecord(string fileName)
-        {
-            AppConfigHelper.RemoveKey("FileRecord-" + fileName);
-        }
-        private void PlayRecord(string fileName)
-        {
-            FileInfo fileInfo = new FileInfo(fileName);
-            //判断后缀是否支持
-            if (!supportedVideos.Contains(fileInfo.Extension.ToLower()))
-            {
-                return;
-            }
-            //更新媒体目录
-            if (!List_MediaFileNames.Contains(fileInfo.FullName))
-            {
-                AddDirectoryToListFile(fileInfo.DirectoryName);
-            }
-
-            nowFileName = fileInfo.FullName;
-            nowIdx = List_MediaFileNames.IndexOf(nowFileName);
-            Player.Source = new Uri(fileName);
-            Player.LoadedBehavior = MediaState.Manual;
-            Slider_Voice.Value = defaultVoice;
-            Player.Volume = 1.0 * defaultVoice / Slider_Voice.Maximum;
-            label_NowFile.Content = fileInfo.Name;
-            List_MediaFileNodes[nowIdx].IsUsing = true;
-
-            SetVideoMode(true);
-            DateTime t = DateTime.Now;
-
-
-            while (!Player.NaturalDuration.HasTimeSpan)//等待媒体开始播放
-            {
-                System.Threading.Thread.Sleep(50);
-                if (DateTime.Now.Subtract(t).TotalMilliseconds > 5000)
-                {
-                    btnStop_Click(null, null);
-                    SetVideoMode(false);
-                    if (System.Windows.MessageBox.Show(
-                "文件损坏，或者不支持此种视频格式。\n可能是未安装HEVC解码器，是否从微软商场安装？", "打开失败", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                        {
-                            string url = "ms-windows-store://pdp/?ProductId=9n4wgh0z6vhq";
-                            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-                        }
-                    }
-                    return;
-                }
-            }
-
-            nowPosition = LoadRecord(nowFileName);
-            if (nowPosition + 1000 < Player.NaturalDuration.TimeSpan.TotalMilliseconds)
-                Player.Position = new TimeSpan(0, 0, 0, 0, nowPosition);
-
-            if (subItems != null)
-            {
-                subItems.Clear();
-                tbSub.Text = "";
-            }
-            string subfile = AppConfigHelper.LoadKey("FileRecordSub-" + nowFileName);
-            if (subfile != "")
-                OpenSubFile(subfile);
-            else
-            {
-                string fileNoExPath = fileName.Remove(fileName.Length - fileInfo.Extension.Length, fileInfo.Extension.Length);
-                foreach (var subEx in supportedSubs)
-                {
-                    if (OpenSubFile(fileNoExPath + subEx))
-                        break;
-                }
-            }
-
-            //UI
-            Slider_Process.Maximum = (int)Player.NaturalDuration.TimeSpan.TotalSeconds;
-            Slider_Process.Visibility = Visibility.Visible;
-            btnLeft.Visibility = Visibility.Visible;
-            btnRight.Visibility = Visibility.Visible;
-            Label_Process.Visibility = Visibility.Visible;
-            TreeView_File.Margin = new Thickness(TreeView_File.Margin.Left, -Grid_Center.Margin.Top, TreeView_File.Margin.Right, -Grid_Center.Margin.Bottom);
-            GridSplitter_List.Margin = new Thickness(GridSplitter_List.Margin.Left, -Grid_Center.Margin.Top, GridSplitter_List.Margin.Right, -Grid_Center.Margin.Bottom);
-            SetPanelMotionVisible(Grid_Top, true);
-            SetPanelMotionVisible(Grid_Menu, true);
-            Canvas_File.Visibility = Visibility.Hidden;
-            btnStop.IsEnabled = true;
-            Grid_CenterLeft.Focus();
-            if(!isListPinning && btnShowList.Content.ToString() == ">")
-                ShowList(true);
-                
-            if (nowIdx != 0)
-                btnLast.IsEnabled = true;
-            if (nowIdx != List_MediaFileNodes.Count - 1)
-                btnNext.IsEnabled = true;
-        }
-        private void SetVideoMax(bool flag)
-        {
-            ControlTemplate customWindowTemplate = App.Current.Resources["CustomWindowTemplete"] as ControlTemplate;
-            var grid = customWindowTemplate.FindName("ResizingGrid", this) as Grid;
-            if (flag)
-            {
-                grid.RowDefinitions[0].Height = new GridLength(0);
-                grid.RowDefinitions[2].Height = new GridLength(0);
-                grid.ColumnDefinitions[0].Width = new GridLength(0);
-                grid.ColumnDefinitions[2].Width = new GridLength(0);
-                WindowState = WindowState.Maximized;
-                btnScreen.Background = VideoImageBrushs.Return;
-                menuScreen.Header = "退出全屏";
-            }
-            else
-            {
-                grid.RowDefinitions[0].Height = new GridLength(1);
-                grid.RowDefinitions[2].Height = new GridLength(1);
-                grid.ColumnDefinitions[0].Width = new GridLength(1);
-                grid.ColumnDefinitions[2].Width = new GridLength(1);
-                WindowState = WindowState.Normal;
-                btnScreen.Background = VideoImageBrushs.Screen;
-                menuScreen.Header = "全屏";
-            }
-        }
-        private void SetWindowMax()
-        {
-            ControlTemplate customWindowTemplate = App.Current.Resources["CustomWindowTemplete"] as ControlTemplate;
-            var grid = customWindowTemplate.FindName("ResizingGrid", this) as Grid;
-            Rect rect = SystemParameters.WorkArea;
-            if (!isWindowMax)
-            {
-                btnMax.Background = VideoImageBrushs.Return;
-                grid.RowDefinitions[0].Height = new GridLength(0);
-                grid.RowDefinitions[2].Height = new GridLength(0);
-                grid.ColumnDefinitions[0].Width = new GridLength(0);
-                grid.ColumnDefinitions[2].Width = new GridLength(0);
-                WindowState = WindowState.Normal;
-                this.Width = rect.Width + 22;
-                this.Height = rect.Height + 22;
-                this.Top = -11;
-                this.Left = -11;
-            }
-            else
-            {
-                btnMax.Background = VideoImageBrushs.Max;
-                grid.RowDefinitions[0].Height = new GridLength(1);
-                grid.RowDefinitions[2].Height = new GridLength(1);
-                grid.ColumnDefinitions[0].Width = new GridLength(1);
-                grid.ColumnDefinitions[2].Width = new GridLength(1);
-                WindowState = WindowState.Normal;
-                this.Width = defaultWidth;
-                this.Height = defaultHeight;
-                this.Top = (rect.Height - defaultHeight) / 2;
-                this.Left = (rect.Width - defaultWidth) / 2;
-
-            }
-            btnScreen.Background = VideoImageBrushs.Screen;
-            isWindowMax = !isWindowMax;
-        }
-
-        private void Grid_Player_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            Player.Width = Grid_Player.ActualWidth * viewPercent;
-            Player.Height = Grid_Player.ActualWidth * viewPercent;
-        }
-
-
-
-
-
-        /// <summary>
-        /// 配置是否显示最前
-        /// </summary>
-        /// <param name="flag"></param>
-        private void SetTop(bool flag)
-        {
-
-            Topmost = flag;
-            menuTop.IsChecked = flag;
-            if (flag)
-            {
-                btnTop.Background = VideoImageBrushs.Pin;
-            }
-            else
-            {
-                btnTop.Background = VideoImageBrushs.NotPin;
-            }
-        }
-        /// <summary>
-        /// 使得视频播放或暂停
-        /// </summary>
-        /// <param name="flag"></param>
-        private void SetVideoMode(bool flag)
-        {
-            if (Player.Source == null) return;
-            if (flag)
-            {
-                Player.Play();
-                timer_Process.Start();
-                timer_Sub.Start();
-                btnStart.Background = VideoImageBrushs.Pause;
-                playingFlag = true;
-            }
-            else
-            {
-                timer_Process.Stop();
-                timer_Sub.Stop();
-                if (Player.HasAudio || Player.HasVideo)
-                    Player.Pause();
-                btnStart.Background = VideoImageBrushs.Start;
-                playingFlag = false;
-            }
-        }
-
-
-        #endregion
     }
 }
