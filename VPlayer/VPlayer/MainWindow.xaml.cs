@@ -496,6 +496,7 @@ namespace VPlayer
                                 AppConfigHelper.SaveKey("FileRecordSub-" + nowFileName, nowSubName);
                         }
                     }
+                    Slider_Process.Value = 0;
                     SetVideoMode(false);
                     Player.Stop();
                     Player.Close();
