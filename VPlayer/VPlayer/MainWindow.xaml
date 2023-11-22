@@ -49,7 +49,7 @@
                 <Canvas x:Name="Canvas_Main" Background="#FF303030" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Grid x:Name="Grid_Main"  Canvas.Left="0" Canvas.Top="-35"  MouseWheel="Player_MouseWheel"  Height="{Binding ActualHeight,ElementName=Grid_Form}" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1">
                         <Grid x:Name="Grid_Player" SizeChanged="Grid_Player_SizeChanged" >
-                            <MediaElement x:Name="Player" HorizontalAlignment="Center" VerticalAlignment="Center" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" SizeChanged="Player_SizeChanged"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
+                            <MediaElement x:Name="PlayerElement" HorizontalAlignment="Center" VerticalAlignment="Center" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" SizeChanged="Player_SizeChanged"  Opacity="0.95" MediaEnded="Player_MediaEnded"/>
                             <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
                             <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
                             <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
@@ -196,7 +196,7 @@
             <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC282828" HorizontalAlignment="Stretch" Focusable="False" />
             <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC383838" Foreground="#FFB1B1B1" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0" MouseDoubleClick="TreeView_File_MouseDoubleClick" SizeChanged="TreeView_File_SizeChanged">
                 <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:CustomNode}" ItemsSource="{Binding Childs}">
+                    <HierarchicalDataTemplate DataType="{x:Type local:MediaFileNode}" ItemsSource="{Binding Childs}">
                         <TextBlock Text="{Binding Name}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
