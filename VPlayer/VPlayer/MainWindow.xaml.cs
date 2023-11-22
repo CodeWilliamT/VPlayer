@@ -489,7 +489,6 @@ namespace VPlayer
                         nowIdx = List_MediaFileNames.IndexOf(nowFileName);
                         List_MediaFileNodes[nowIdx].IsUsing = false;
                         List_MediaFileNodes[nowIdx].IsRecorded = true;
-                        if (Player.NaturalDuration.HasTimeSpan)
                         {
                             SaveRecord();
                             if (subItems != null && subItems.Count() > 0)
