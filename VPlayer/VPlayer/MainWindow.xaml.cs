@@ -26,6 +26,26 @@ using System.Globalization;
 
 namespace VPlayer
 {
+    public struct LogInfo
+    {
+        public string logStr;
+        public DateTime disposeTime;
+    }
+    public class FileRecord
+    {
+        public int ID;
+        public FileInfo FileInfo;
+        public int Position;
+        public MediaFileNode mediaFileNode;
+        List<FileInfo> List_SubFiles;
+        public FileRecord(int id, string filename, MediaFileNode node)
+        {
+            ID = id;
+            FileInfo = new FileInfo(filename);
+            Position = 0;
+            mediaFileNode = node;
+        }
+    }
     public class MediaFileNode : TreeViewItemBase
     {
         public MediaFileNode()
@@ -131,21 +151,6 @@ namespace VPlayer
     /// </summary>
     public partial class MainWindow : VcreditWindowBehindCode
     {
-        public class FileRecord
-        {
-            public int ID;
-            public FileInfo FileInfo;
-            public int Position;
-            public MediaFileNode mediaFileNode;
-            List<FileInfo> List_SubFiles;
-            public FileRecord(int id,string filename,MediaFileNode node)
-            {
-                ID = id;
-                FileInfo = new FileInfo(filename);
-                Position = 0;
-                mediaFileNode = node;
-            }
-        }
         enum PlayOverActions { PlayNext = 0, PlayThis = 1, DoNothing = 2 }
 
         const string title = "VPlayer By WilliamT";
@@ -159,13 +164,13 @@ namespace VPlayer
         bool isWindowMax;
         bool mourseVisible = true;
         int mourseVisibleDelay, mourseVisibleMax = 6;
-        int sec_logDelay, sec_logDelayMax = 6;//1为500毫秒
         DateTime time_LastMouseDown;
         POINT pi;
         RotateTransform viewRotateTransform;
         DispatcherTimer timer_Process;
         DispatcherTimer timer_Time;
         DispatcherTimer timer_Sub;
+        Queue<LogInfo> Queue_LogInfo;
         List<FileInfo> List_SubFiles;
         Dictionary<string, FileRecord> Dic_MediaFiles;
         List<SubtitlesParser.Classes.SubtitleItem> subItems;
@@ -242,7 +247,6 @@ namespace VPlayer
             preWidth = formWindow.Width;
             preHeight = formWindow.Height;
             Title = title;
-            sec_logDelay = 0;
             isWindowMax = false;
             mourseVisible = true;
             mourseVisibleDelay = 0;
@@ -276,6 +280,7 @@ namespace VPlayer
                 Slider_Voice.Value = 50;
             }
             defaultDirctory = defaultDirctory.Replace("\0", "");
+            Queue_LogInfo = new Queue<LogInfo>();
             List_SubFiles = new List<FileInfo>();
             Dic_MediaFiles = new Dictionary<string, FileRecord>();
             //viewRotateTransform = new RotateTransform();
@@ -468,8 +473,13 @@ namespace VPlayer
         /// <param name="str"></param>
         private void LogInfo(string str)
         {
-            textBlock_Log.Text = str;
-            sec_logDelay = 0;
+            if (Queue_LogInfo.Count >= 2)
+            {
+                textBlock_Log.Text = textBlock_Log.Text.Replace(Queue_LogInfo.Peek().logStr, "");
+                Queue_LogInfo.Dequeue();
+            }
+            Queue_LogInfo.Enqueue(new LogInfo() { logStr = str+"\n", disposeTime = DateTime.Now.AddSeconds(4) });
+            textBlock_Log.Text = textBlock_Log.Text + Queue_LogInfo.Last().logStr;
         }
         /// <summary>
         /// 播放媒体文件
@@ -1006,19 +1016,20 @@ namespace VPlayer
         private void timer_Time_tick(object sender, EventArgs e)
         {
             label_time.Content = DateTime.Now.ToString("HH:mm:ss");
-            if (sec_logDelay == sec_logDelayMax + 3) return;
-            else if (sec_logDelay < sec_logDelayMax) sec_logDelay++;
-            else
+            if (Queue_LogInfo.Count>0&& Queue_LogInfo.Peek().disposeTime< DateTime.Now)
             {
-                textBlock_Log.Text = "";
+                textBlock_Log.Text = textBlock_Log.Text.Replace(Queue_LogInfo.Peek().logStr,"");
+                Queue_LogInfo.Dequeue();
             }
-            if (!Grid_CenterLeft.IsMouseOver) return;
-            if (!mourseVisible) return;
-            else if (mourseVisibleDelay < mourseVisibleMax) mourseVisibleDelay++;
-            else
+            if (Grid_CenterLeft.IsMouseOver&& mourseVisible)
             {
-                ShowCursor(0);
-                mourseVisible = false;
+                if (mourseVisibleDelay < mourseVisibleMax)
+                    mourseVisibleDelay++;
+                else
+                {
+                    ShowCursor(0);
+                    mourseVisible = false;
+                }
             }
         }
         #region 隐藏鼠标的方法 0/1 隐藏/显示

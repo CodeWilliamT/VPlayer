@@ -1,26 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace VPlayer
 {
-    internal abstract class BasePlayer:System.Windows.Controls.UserControl
+    internal abstract class BasePlayer:FrameworkElement
     {
-        public BasePlayer(object obj)
+        protected FrameworkElement uie;
+        public BasePlayer(FrameworkElement obj)
         {
-            var control = obj as UserControl;
-            FieldInfo[] infos = obj.GetType().GetFields();
-            foreach (FieldInfo fi in infos)
-            {
-                fi.SetValue(this, fi.GetValue(obj));
-            }
+            uie = obj;
         }
+        //ui property
+
+        public double ActualHeight { get => uie.ActualHeight;}
+        public double ActualWidth { get => uie.ActualWidth;}
+        public double Height { get=>uie.Height; set => uie.Height=value; }
+        public double Width { get => uie.Width; set => uie.Width = value; }
+        //player property
         public TimeSpan Position { get; set; }
         public bool IsPlaying { get; set; }
         public System.Windows.Duration NaturalDuration { get; }
@@ -50,9 +55,9 @@ namespace VPlayer
     {
         private MediaElement player;
 
-        public MSPlayer(object obj) : base(obj)
+        public MSPlayer(FrameworkElement obj) : base(obj)
         {
-            player = obj as MediaElement;
+            player = uie as MediaElement;
         }
         public TimeSpan Position { get=>player.Position; set=>player.Position=value; }
         public bool IsPlaying { get=> GetMediaState(player) == MediaState.Play; 
