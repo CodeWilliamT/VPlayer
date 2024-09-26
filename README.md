@@ -12,7 +12,7 @@
 
 
 
-欢迎反馈在Github Issue上进行或发送电子邮件至william_twl@qq.com.
+欢迎反馈在Github Issue上进行或发送电子邮件至will_twl@outlook.com.
 
 
 
