@@ -58,8 +58,8 @@ jobs:
     env:
       Solution_Name: VPlayer\VPlayer.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
       #Test_Project_Path: your-test-project-path                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      Wap_Project_Directory: VPlayer\VPlayer    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Path: VPlayer\VPlayer\VPlayer.csproj                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      Wap_Project_Directory: 'VPlayer\VPlayer Installer'    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      Wap_Project_Path: 'VPlayer\VPlayer Installer\VPlayer Installer.vdproj'                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
 
     steps:
     - name: Checkout
@@ -112,4 +112,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\AppPackages
+        path: ${{ env.Wap_Project_Directory }}\Release
