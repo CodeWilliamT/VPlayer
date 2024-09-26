@@ -49,7 +49,7 @@ Using .Net Framework of windows and default codec from provider on windows OS,
 so it use low resource on Windows OS to get high qulity video expenriment.
 
 
-Welcome to feedback issues on Github Issue or sent e-mail to william_twl@qq.com.
+Welcome to feedback issues on Github Issue or sent e-mail to will_twl@outlook.com.
 
 
 To use that app needs to enable Windows Media PLayer feature.
