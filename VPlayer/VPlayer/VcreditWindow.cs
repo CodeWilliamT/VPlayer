@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace VPlayer
 {
-    public class VcreditWindowBehindCode : Window
+    public class VcreditWindow : Window
     {
         public const int WM_SYSCOMMAND = 0x112;
         public HwndSource HwndSource;
@@ -46,7 +46,7 @@ namespace VPlayer
         public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
 
-        public VcreditWindowBehindCode()
+        public VcreditWindow()
         {
             this.SourceInitialized += VcreditWindowBehindCode_SourceInitialized;
             this.Loaded += VcreditWindowBehindCode_Loaded;

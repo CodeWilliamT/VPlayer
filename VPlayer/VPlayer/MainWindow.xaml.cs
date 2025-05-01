@@ -149,7 +149,7 @@ namespace VPlayer
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : VcreditWindowBehindCode
+    public partial class MainWindow : VcreditWindow
     {
         enum PlayOverActions { PlayNext = 0, PlayThis = 1, DoNothing = 2 }
 
@@ -185,7 +185,7 @@ namespace VPlayer
         List<string> supportedSubs = new List<string>()
         { ".srt", ".ass", ".sub", ".vtt",".ram"
         };
-        MSPlayer player;
+        VLCPlayer player;
         public string defaultDirctory;
         public List<string> List_Dirctory;
         public int defaultVoice = 50;
@@ -288,7 +288,7 @@ namespace VPlayer
             RefreshFileTree();
             (menuPlayOverActions.Items[PlayOverActionMode] as System.Windows.Controls.MenuItem).IsChecked = true;
             PinList(isListPinning);
-            player = new MSPlayer(PlayerElement);
+            player = new VLCPlayer(PlayerElement);
         }
 
         #region UI Functions
@@ -758,8 +758,9 @@ namespace VPlayer
 
             nowFileName = fileInfo.FullName;
             player.Open(fileName);
+
             Slider_Voice.Value = defaultVoice;
-            player.Volume = 1.0 * defaultVoice / Slider_Voice.Maximum;
+            player.Volume = (int)(100* defaultVoice / Slider_Voice.Maximum);
             label_NowFile.Content = fileInfo.Name;
             Dic_MediaFiles[nowFileName].mediaFileNode.IsUsing = true;
 
@@ -825,6 +826,11 @@ namespace VPlayer
         _end:
             //UI
             Slider_Process.Maximum = (int)player.NaturalDuration.TimeSpan.TotalSeconds;
+            while (Slider_Process.Maximum == 0 && DateTime.Now.Subtract(t).TotalMilliseconds < 5000)
+            {
+                System.Threading.Thread.Sleep(50);
+                Slider_Process.Maximum = (int)player.NaturalDuration.TimeSpan.TotalSeconds;
+            }
             Slider_Process.Visibility = Visibility.Visible;
             btnLeft.Visibility = Visibility.Visible;
             btnRight.Visibility = Visibility.Visible;
@@ -1252,9 +1258,9 @@ namespace VPlayer
         {
             if (player == null) return;
             if (player.Source == null) return;
-            player.Volume = 1.0 * Slider_Voice.Value / Slider_Voice.Maximum;
+            player.Volume = (int)(100 * Slider_Voice.Value / Slider_Voice.Maximum);
             if (Slider_Voice.Value > 0) defaultVoice = (int)Slider_Voice.Value;
-            LogInfo("音量:" + player.Volume.ToString("P0"));
+            LogInfo(string.Format("音量:{0}%", Slider_Voice.Value));
         }
 
 

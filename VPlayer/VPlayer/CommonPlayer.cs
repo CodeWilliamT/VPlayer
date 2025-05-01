@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Vlc.DotNet.Wpf;
+using Vlc.DotNet.Core;
+using System.Windows.Forms;
+using Vlc.DotNet.Core.Interops.Signatures;
+using System.Threading;
 
 namespace VPlayer
 {
@@ -29,11 +34,11 @@ namespace VPlayer
         public TimeSpan Position { get; set; }
         public bool IsPlaying { get; set; }
         public System.Windows.Duration NaturalDuration { get; }
-        public int NaturalVideoHeight { get; }
         public int NaturalVideoWidth { get; }
+        public int NaturalVideoHeight { get; }
         public Uri Source { get; set; }
         public double SpeedRatio { get; set; }
-        public double Volume { get; set; }
+        public int Volume { get; set; }
         public List<string> SupportedVideos = new List<string>()
         {
             ".asf", ".avi", ".wm", ".wmp", ".wmv",
@@ -51,6 +56,105 @@ namespace VPlayer
         public abstract void Close();
 
     }
+
+    internal class VLCPlayer : BasePlayer
+    {
+        private VlcControl vlc;
+        private VlcMediaPlayer player;
+        private VlcMedia media;
+        private DirectoryInfo libDirectory = new DirectoryInfo(System.IO.Path.Combine(Environment.CurrentDirectory, "VLC"));
+
+        public VLCPlayer(FrameworkElement obj) : base(obj)
+        {
+            vlc = uie as VlcControl;
+            //初始化播放器
+            vlc.SourceProvider.CreatePlayer(new DirectoryInfo("VLC"), new[]{ "--no-sub-autodetect-file" });
+            player = vlc.SourceProvider.MediaPlayer;
+        }
+        public TimeSpan Position { get => TimeSpan.FromMilliseconds(player.Position* player.Length); set => player.Position = (float)(1.0f*value.TotalMilliseconds/ player.Length); }
+        public bool IsPlaying
+        {
+            get => player.IsPlaying();
+            set
+            {
+                if (value)
+                    Play();
+                else
+                    Pause();
+            }
+        }
+        public System.Windows.Duration NaturalDuration { get => TimeSpan.FromMilliseconds(player.Length); }
+        public int NaturalVideoWidth { get => 1280; }
+        public int NaturalVideoHeight { get => 720; }
+        public Uri Source 
+        { 
+            get => media==null?null:(new Uri(media.Mrl)); 
+            set
+            {
+                if (value == null)
+                {
+                    media.Dispose();
+                    media= null;
+                }
+                else
+                    player.SetMedia(value); 
+            }  
+        }
+        public double SpeedRatio { get => player.Rate; set => player.Rate = (float)value; }
+        public int Volume { get => player.Audio.Volume; set => player.Audio.Volume = value; }
+
+        public override void Open(string fileName)
+        {
+            try
+            {
+                if (fileName == null || fileName == "") return;
+                if (!File.Exists(fileName)) return;
+                if (media != null)
+                {
+                    this.Stop();
+                    this.Close();
+                }
+                FileInfo fileInfo = new FileInfo(fileName);
+                //判断后缀是否支持
+                if (!SupportedVideos.Contains(fileInfo.Extension.ToLower()))
+                {
+                    return;
+                }
+                player.SetMedia(new Uri(fileName));
+                player.Play();
+                media = player.GetMedia();
+                vlc.Opacity = 0.95;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(String.Format("Can not open this File. {0}", ex.ToString()));
+            }
+        }
+        public override void Play()
+        {
+            player.Play();
+        }
+        public override void Pause()
+        {
+            player.SetPause(true);
+        }
+        public override void Stop()
+        {
+            media.Dispose();
+            player.ResetMedia();
+            vlc.Opacity = 0;
+        }
+        public override void Close()
+        {
+            if (media != null)
+            {
+                this.Stop();
+            }
+        }
+        #region private fuc
+        #endregion
+    }
+
     internal class MSPlayer : BasePlayer
     {
         private MediaElement player;
@@ -69,11 +173,11 @@ namespace VPlayer
             }
         }
         public System.Windows.Duration NaturalDuration { get => player.NaturalDuration; }
-        public int NaturalVideoHeight { get => player.NaturalVideoHeight;}
         public int NaturalVideoWidth { get => player.NaturalVideoWidth; }
+        public int NaturalVideoHeight { get => player.NaturalVideoHeight;}
         public Uri Source { get => player.Source; set => player.Source = value; }
         public double SpeedRatio { get => player.SpeedRatio; set => player.SpeedRatio = value; }
-        public double Volume { get => player.Volume; set => player.Volume = value; }
+        public int Volume { get => (int)(player.Volume*100); set => player.Volume = value/100.0d; }
 
         public override void Open(string fileName)
         {
