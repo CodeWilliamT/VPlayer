@@ -204,6 +204,7 @@ namespace CommonPlayer
                     return;
                 }
                 media = new Media(libvlc, new Uri(fileName));
+                player.Scale = 0;
                 player.Media = media;
                 player.Play();
                 Dispatcher.InvokeAsync(() => {
