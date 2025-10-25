@@ -10,8 +10,9 @@
         BorderBrush="Black" Background="Black" AllowsTransparency="True" AllowDrop="True"   >
     <Grid x:Name="Grid_Form" Background="#01000000" Margin="0,0,0,0">
         <Grid x:Name="Grid_Player" Margin="0,0,0,0" Background="Black" >
-            <vlc:VideoView x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Grid x:Name="Grid_Mask" Background="#01000000" Margin="0,0,0,0" AllowDrop="True">
+            <vlc:VideoView x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <!--<MediaElement x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />-->
+            <Grid x:Name="Grid_Mask" Background="#01000000" Margin="0,0,0,0" AllowDrop="True">
                     <Grid.ContextMenu>
                         <ContextMenu MouseMove="Grid_Mask_MouseMove">
                             <MenuItem Name="menuOpen" Header="打开">
@@ -51,7 +52,13 @@
                             <ColumnDefinition Width="270" />
                         </Grid.ColumnDefinitions>
                         <Grid x:Name="Grid_Main" Margin="0,0,0,0" Grid.Column="0">
-                            <Grid x:Name="Grid_Top" Height="60" VerticalAlignment="Top" Background="#00000000">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="60" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="80" />
+                            </Grid.RowDefinitions>
+                            <Grid x:Name="Grid_Top" Grid.Row="0" VerticalAlignment="Top" Background="#00000000">
                                 <Canvas x:Name="Canvas_Top" Height="30" VerticalAlignment="Top" Background="#33000000">
                                     <Label x:Name="label_NowFile" Content="VPlayer By WilliamT" Canvas.Top="0" Foreground="White" Width="auto" Height="auto" />
                                     <Button x:Name="btnTop" Content="" Canvas.Right="100" Width="25" Height="25" Canvas.Top="0" Style="{StaticResource CustomButton}" >
@@ -82,15 +89,15 @@
                                     <Label x:Name="label_time" Content="XX:XX:XX" Foreground="White" Canvas.Right="165" Canvas.Top="0" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top"/>
                                 </Canvas>
                             </Grid>
-                            <Grid x:Name="Grid_Sub" Margin="0,0,0,0">
-                                <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
-                                <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                            <Grid x:Name="Grid_Sub" Grid.Row="1" Margin="0,0,0,0" Background="#01000000">
+                                <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,-30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+                                <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,-18" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,-22" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,-20" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,-20" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
                                 <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,60" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="White" FontSize="17" TextAlignment="Center" FontWeight="Bold"/>
                             </Grid>
-                            <Grid x:Name="Grid_Menu" Height="80" Margin="0" VerticalAlignment="Bottom" Opacity="0.95" Background="#7F000000">
+                            <Grid x:Name="Grid_Menu" Grid.Row="2" Margin="0" VerticalAlignment="Bottom" Opacity="0.95" Background="#7F000000">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="631*"/>
                                     <ColumnDefinition Width="61*"/>

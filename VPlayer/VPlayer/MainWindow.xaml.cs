@@ -175,6 +175,7 @@ namespace VPlayer
         List<string> supportedSubs = new List<string>()
         { ".srt", ".ass", ".sub", ".vtt",".ram"
         };
+        //MSPlayer player;
         LibVLCPlayer player;
         public string defaultDirctory;
         public List<string> List_Dirctory;
@@ -276,6 +277,7 @@ namespace VPlayer
             //viewRotateTransform = new RotateTransform();
             //player.LayoutTransform= viewRotateTransform;
             RefreshFileTree();
+            //player = new MSPlayer(PlayerElement);
             player = new LibVLCPlayer(PlayerElement);
             player.MediaEnded += Player_MediaEnded;
             (menuPlayOverActions.Items[PlayOverActionMode] as System.Windows.Controls.MenuItem).IsChecked = true;
@@ -302,6 +304,7 @@ namespace VPlayer
             //mouse
             Grid_Mask.PreviewMouseMove += Grid_Mask_MouseMove;
             Grid_Mask.MouseLeftButtonDown += Grid_Mask_MouseLeftButtonDown;
+            Grid_Sub.MouseLeftButtonDown += Grid_Sub_MouseLeftButtonDown;
             Grid_Main.MouseWheel += Player_MouseWheel;
             menuOpenFile.Click += btnOpenFile_Click;
             menuOpenFolder.Click += btnOpenFolder_Click;
@@ -933,8 +936,7 @@ namespace VPlayer
         {
             SetUp_ZoomMode();
             if (Grid_Player.ActualWidth <= 0 || Grid_Player.ActualHeight <= 0) return;
-            player.Width = (Grid_Player.ActualWidth) * viewPercent;
-            player.Height = (Grid_Player.ActualHeight) * viewPercent;
+            player.Scale = (float)viewPercent;
         }
 
         /// <summary>
@@ -1562,7 +1564,7 @@ namespace VPlayer
                 return;
         }
 
-        private void Grid_Mask_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Grid_Sub_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (DateTime.Now.Subtract(time_LastMouseDown).TotalMilliseconds > 300)
             {
@@ -1572,12 +1574,16 @@ namespace VPlayer
             {
                 SetVideoMax(WindowState == WindowState.Normal);
             }
+            if (player.Source == null) return;
+            btnStart_Click(null, null);
+        }
+
+        private void Grid_Mask_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
             if (e.LeftButton == MouseButtonState.Pressed && WindowState == WindowState.Normal)
             {
                 this.DragMove();
             }
-            if (player.Source == null) return;
-            btnStart_Click(null, null);
         }
 
 

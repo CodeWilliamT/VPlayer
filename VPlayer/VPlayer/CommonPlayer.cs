@@ -26,6 +26,7 @@ namespace CommonPlayer
     internal abstract class BasePlayer : FrameworkElement
     {
         protected FrameworkElement uie;
+        protected float scale = 1;
         public BasePlayer(FrameworkElement obj)
         {
             uie = obj;
@@ -51,7 +52,9 @@ namespace CommonPlayer
         public double ActualWidth { get => uie.ActualWidth; }
         public double Height { get => uie.Height; set => uie.Height = value; }
         public double Width { get => uie.Width; set => uie.Width = value; }
+
         //player property
+        public float Scale { get => scale; set { scale = value; uie.Width = ((Panel)uie.Parent).ActualWidth * scale; uie.Height = ((Panel)uie.Parent).ActualHeight * scale; } }
         public TimeSpan Position { get; set; }
         public bool IsPlaying { get; set; }
         public System.Windows.Duration NaturalDuration { get; }
@@ -85,6 +88,8 @@ namespace CommonPlayer
             vlc = uie as VideoView;
             //初始化播放器
             string[] options = new string[]{
+            //"--zoom=0.5",//调整缩放
+            //"--no-autoscale",//不缩放界面至原生视频大小
             //":--no-overlay", // 关闭硬件加速
             //":--no-video-hwaccels", // 关闭硬件加速
             //":--no-ignore-config", // 不无视配置
@@ -92,7 +97,6 @@ namespace CommonPlayer
             //":‌--ffmpeg-hw=none", // 禁用FFmpeg硬件解码器
             //":video-chroma=RV32", // 使用适合硬件加速的色深格式
             //":hwdec=auto", // 自动选择硬件解码器
-            //":--no-qt-video-autoresize ",//不缩放界面至原生视频大小
             //":--no-media-library", // 不用媒体库
             //":network-caching=1000", // 设置网络缓存时间
             //":file-caching=3600000", // 设置文件缓存时间
@@ -130,6 +134,24 @@ namespace CommonPlayer
             vlc.MediaPlayer = player;
             player.EndReached += TriggerMediaEnded;
         }
+
+
+        public float Scale 
+        { 
+            get => scale; 
+            set 
+            { 
+                scale = value;
+                if ((media == null))
+                {
+                    return;
+                }
+                float fitscale = (float)Math.Min(this.ActualWidth / naturalVideoWidth, this.ActualHeight / naturalVideoHeight);
+                player.Scale = scale* fitscale;
+
+            } 
+        }
+
         public TimeSpan Position { get => TimeSpan.FromMilliseconds(player.Time); set => player.Time = (long)value.TotalMilliseconds; }
         public bool IsPlaying
         {
@@ -150,6 +172,7 @@ namespace CommonPlayer
             get => (media == null) ? null : (new Uri(media.Mrl));
             set
             {
+                if (media == null) return;
                 if (value == null)
                 {
                     media.Dispose();
@@ -204,6 +227,7 @@ namespace CommonPlayer
         public override void Stop()
         {
             player.Media.Dispose();
+            media = null;
             Dispatcher.InvokeAsync(() => {
                 vlc.Opacity = 0;
             });
@@ -223,7 +247,7 @@ namespace CommonPlayer
             MediaTrack[] tracks = media.Tracks; // 获取媒体轨道信息
             MediaTrack track = tracks.FirstOrDefault(t => t.TrackType == TrackType.Video); // 查找视频轨道
             VideoTrack videoTrack = track.Data.Video;
-            naturalVideoWidth = (int)videoTrack.Height;
+            naturalVideoWidth = (int)videoTrack.Width;
             naturalVideoHeight = (int)videoTrack.Height;
         }
         #region private fuc
@@ -244,6 +268,7 @@ namespace CommonPlayer
             player = uie as MediaElement;
             player.MediaEnded += TriggerMediaEnded;
         }
+        public float Scale { get => scale; set { scale = value; player.Width= ((Panel)player.Parent).ActualWidth * scale; player.Height = ((Panel)player.Parent).ActualHeight * scale; } }
         public TimeSpan Position { get => player.Position; set => player.Position = value; }
         public bool IsPlaying
         {
