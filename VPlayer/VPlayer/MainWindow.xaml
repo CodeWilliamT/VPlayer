@@ -3,252 +3,241 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VPlayer" xmlns:vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
-                     mc:Ignorable="d"
+        xmlns:local="clr-namespace:VPlayer" xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+        mc:Ignorable="d"
         Style="{StaticResource CustomWindow}"
-        Title="VPlayer" Height="540" Width="950" KeyDown="formWindow_KeyDown" AllowDrop="True" Closing="formWindow_Closing" ContentRendered="formWindow_ContentRendered" WindowStyle="None" BorderBrush="Black" Background="Transparent" AllowsTransparency="True" PreviewDrop="formWindow_PreviewDrop" ResizeMode="CanResize" DragEnter="formWindow_DragEnter">
-    <Grid x:Name="Grid_Form" Background="Black" PreviewMouseMove="Grid_Form_MouseMove" MouseLeftButtonDown="Grid_Form_MouseLeftButtonDown" >
-        <Grid.ContextMenu>
-            <ContextMenu MouseMove="Grid_Form_MouseMove">
-                <MenuItem Name="menuOpen" Header="打开">
-                    <MenuItem Name="menuOpenFile" Header="打开文件" Click="btnOpenFile_Click"/>
-                    <MenuItem Name="menuOpenFolder" Header="打开文件夹" Click="btnOpenFolder_Click"/>
-                </MenuItem>
-                <MenuItem Name="menuSub" Header="字幕">
-                    <MenuItem Name="menuSubOpen" Header="加载字幕" Click="btnSubOpen_Click"/>
-                    <MenuItem Name="menuSubVisible" Header="隐藏字幕" Click="btnSubVisible_Click" IsCheckable="True"/>
-                </MenuItem>
-                <MenuItem Name="menuPlayOverActions" Header="播放完毕后">
-                    <MenuItem Name="menuCheckPlayNext" Header="播下一个" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="PlayNext"/>
-                    <MenuItem Name="menuCheckPlayThis" Header="重复播放" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="PlayThis"/>
-                    <MenuItem Name="menuCheckDoNothing" Header="停止" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="DoNothing"/>
-                </MenuItem>
-                <MenuItem Name="menuView" Header="画面">
-                    <MenuItem Name="menuViewClock90" Header="顺时针旋转90度" Click="menuViewClock90_Click" />
-                    <MenuItem Name="menuViewRClock90" Header="逆时针旋转90度" Click="menuViewRClock90_Click" />
-                    <MenuItem Name="menuViewZoomUp" Header="放大0.25(当前视窗)" Click="menuViewZoomUp_Click" />
-                    <MenuItem Name="menuViewZoomDown" Header="缩小0.25(当前视窗)" Click="menuViewZoomDown_Click" />
-                    <MenuItem Name="menuViewLongerFit" Header="较长轴自适应" Click="menuViewLongerFit_Click" />
-                    <MenuItem Name="menuViewHeightFit" Header="高度自适应(可能遮盖横向两侧)" Click="menuViewHeightFit_Click" />
-                </MenuItem>
-                <MenuItem Name="menuOpenDir" Header="打开当前目录" Click="menuOpenDir_Click"/>
-                <MenuItem Name="menuScreen" Header="全屏" Click="btnScreen_Click"/>
-                <MenuItem Name="menuTop" Header="最前显示" Click="btnTop_Click" IsCheckable="True"/>
-                <MenuItem Name="menuSetDefault" Header="设为默认媒体程序" Click="menuSetDefault_Click" />
-                <MenuItem Name="menuInstallHEVC" Header="从微软商城安装HEVC解码器" Click="menuInstallHEVC_Click"  />
-            </ContextMenu>
-        </Grid.ContextMenu>
-        <Grid x:Name="Grid_Center" Background="#00000000" Margin="0,35,0,76">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="270" />
-            </Grid.ColumnDefinitions>
+        Title="VPlayer" Width="968" Height="558" WindowStyle="None" ResizeMode="NoResize"
+        BorderBrush="Black" Background="Black" AllowsTransparency="True" AllowDrop="True"   >
+    <Grid x:Name="Grid_Form" Background="#01000000" Margin="0,0,0,0">
+        <Grid x:Name="Grid_Player" Margin="0,0,0,0" Background="Black" >
+            <vlc:VideoView x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid x:Name="Grid_Mask" Background="#01000000" Margin="0,0,0,0" AllowDrop="True">
+                    <Grid.ContextMenu>
+                        <ContextMenu MouseMove="Grid_Mask_MouseMove">
+                            <MenuItem Name="menuOpen" Header="打开">
+                                <MenuItem Name="menuOpenFile" Header="打开文件"/>
+                                <MenuItem Name="menuOpenFolder" Header="打开文件夹"/>
+                            </MenuItem>
+                            <MenuItem Name="menuSub" Header="字幕">
+                                <MenuItem Name="menuSubOpen" Header="加载字幕" />
+                                <MenuItem Name="menuSubVisible" Header="隐藏字幕" />
+                            </MenuItem>
+                            <MenuItem Name="menuPlayOverActions" Header="播放完毕后">
+                                <MenuItem Name="menuCheckPlayNext" Header="播下一个" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="PlayNext"/>
+                                <MenuItem Name="menuCheckPlayThis" Header="重复播放" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="PlayThis"/>
+                                <MenuItem Name="menuCheckDoNothing" Header="停止" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="DoNothing"/>
+                            </MenuItem>
+                            <MenuItem Name="menuZoomModes" Header="缩放">
+                                <MenuItem Name="menuStetch" Header="缩放" IsCheckable="True" Checked="menuZoomModes_Items_Checked" Tag="Stetch"/>
+                                <MenuItem Name="menuFill" Header="纵向填充" IsCheckable="True" Checked="menuZoomModes_Items_Checked" Tag="Fill"/>
+                            </MenuItem>
+                            <MenuItem Name="menuView" Header="画面">
+                                <MenuItem Name="menuViewClock90" Header="顺时针旋转90度"  />
+                                <MenuItem Name="menuViewRClock90" Header="逆时针旋转90度"  />
+                                <MenuItem Name="menuViewZoomUp" Header="放大0.25(当前视窗)"  />
+                                <MenuItem Name="menuViewZoomDown" Header="缩小0.25(当前视窗)"  />
+                            </MenuItem>
+                            <MenuItem Name="menuOpenDir" Header="打开当前目录" />
+                            <MenuItem Name="menuScreen" Header="全屏" />
+                            <MenuItem Name="menuTop" Header="最前显示" />
+                            <MenuItem Name="menuSetDefault" Header="设为默认媒体程序"  />
+                            <MenuItem Name="menuInstallHEVC" Header="从微软商城安装HEVC解码器"   />
+                        </ContextMenu>
+                    </Grid.ContextMenu>
+                    <Grid x:Name="Grid_Center" Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="270" />
+                        </Grid.ColumnDefinitions>
+                        <Grid x:Name="Grid_Main" Margin="0,0,0,0" Grid.Column="0">
+                            <Grid x:Name="Grid_Top" Height="60" VerticalAlignment="Top" Background="#00000000">
+                                <Canvas x:Name="Canvas_Top" Height="30" VerticalAlignment="Top" Background="#33000000">
+                                    <Label x:Name="label_NowFile" Content="VPlayer By WilliamT" Canvas.Top="0" Foreground="White" Width="auto" Height="auto" />
+                                    <Button x:Name="btnTop" Content="" Canvas.Right="100" Width="25" Height="25" Canvas.Top="0" Style="{StaticResource CustomButton}" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/NotPin.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnMin" Content="" Canvas.Right="70" Canvas.Top="0" Width="25" Height="25" Style="{StaticResource CustomButton}" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Min.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnMax" Content="" Canvas.Right="40" Canvas.Top="0" Width="25" Height="25" Style="{StaticResource CustomButton}" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Max.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnClose" Content="" Canvas.Right="10" Canvas.Top="0" Width="25" Height="25" Style="{StaticResource CustomButton}" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Close.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnOpenFile_Copy" Content="" Canvas.Right="125" Canvas.Top="0" Width="25" Height="25" Style="{StaticResource CustomButton}"  >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/OpenFile.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Label x:Name="label_time" Content="XX:XX:XX" Foreground="White" Canvas.Right="165" Canvas.Top="0" Height="25" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Canvas>
+                            </Grid>
+                            <Grid x:Name="Grid_Sub" Margin="0,0,0,0">
+                                <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+                                <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
+                                <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,60" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="White" FontSize="17" TextAlignment="Center" FontWeight="Bold"/>
+                            </Grid>
+                            <Grid x:Name="Grid_Menu" Height="80" Margin="0" VerticalAlignment="Bottom" Opacity="0.95" Background="#7F000000">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="631*"/>
+                                    <ColumnDefinition Width="61*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label x:Name="Label_Process" Foreground="White" Margin="0,24,0,0" Background="#0C000000" Opacity="0.95" Grid.ColumnSpan="2"/>
 
-            <Grid x:Name="Grid_CenterLeft" Grid.Column="0" Margin="0,0,0,0" >
-                <Canvas x:Name="Canvas_Main" Background="#FF303030" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <Grid x:Name="Grid_Main"  Canvas.Left="0" Canvas.Top="-35"  MouseWheel="Player_MouseWheel"  Height="{Binding ActualHeight,ElementName=Grid_Form}" Width="{Binding ActualWidth,ElementName=Grid_Form}" Background="#00000000" Panel.ZIndex="-1">
-                        <Grid x:Name="Grid_Player" SizeChanged="Grid_Player_SizeChanged" >
-                            <vlc:VlcControl x:Name="PlayerElement" OpacityMask="Black" Margin="0,0,0,0" MouseLeftButtonDown="Player_MouseLeftButtonDown" SizeChanged="Player_SizeChanged"  Opacity="0.95"/>
-                            <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
-                            <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,62" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                            <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,58" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                            <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                            <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,60" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                            <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,60" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="White" FontSize="17" TextAlignment="Center" FontWeight="Bold"/>
+                                <Slider x:Name="Slider_Process"  Margin="35,4,35,52" Width="{Binding Width, ElementName=GirdMenu}"  SmallChange="5" Interval="5" IsMoveToPointEnabled="True" Focusable="False" Cursor="Hand" PreviewMouseUp="Slider_Process_MouseUp" MouseMove="Slider_Process_MouseMove" Grid.ColumnSpan="2"  />
+                                <Button x:Name="btnLeft" Width="24" Foreground="#FF6E6E6E" Height="24" RenderTransformOrigin="0.958,1" Style="{StaticResource CustomButton}" Margin="6,2,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" >
+                                    <Button.Background>
+                                        <ImageBrush ImageSource="Images/ToLeft.png"/>
+                                    </Button.Background>
+                                </Button>
+                                <Button x:Name="btnRight" Width="24" Foreground="#FF6E6E6E" Height="24"  RenderTransformOrigin="0.875,1.625" Style="{StaticResource CustomButton}" Margin="0,2,6,0" HorizontalAlignment="Right" VerticalAlignment="Top" Focusable="False" Grid.Column="1" >
+                                    <Button.Background>
+                                        <ImageBrush ImageSource="Images/ToRight.png"/>
+                                    </Button.Background>
+                                </Button>
+                                <Canvas Height="42" Width="194" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,30,0,0">
+                                    <Button x:Name="btnStop" Canvas.Left="2" Canvas.Top="5" Width="38" Foreground="#FF6E6E6E" Height="33" Style="{StaticResource CustomButton}" Focusable="False" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Stop.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnLast" Canvas.Left="52" Width="37" Foreground="#FF6E6E6E" Height="26" Style="{StaticResource CustomButton}" Focusable="False" Canvas.Top="7" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Last.png"/>
+                                        </Button.Background>
+                                    </Button>
+
+                                    <Button x:Name="btnStart" Canvas.Left="97" Width="43" Height="36" Style="{StaticResource CustomButton}" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Start.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnNext" Canvas.Left="148" Canvas.Top="5" Width="37" Foreground="#FF6E6E6E" Height="26" Style="{StaticResource CustomButton}" Focusable="False" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Next.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                </Canvas>
+
+                                <Canvas Height="42" Width="250" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,26,5,0" Grid.ColumnSpan="2">
+                                    <Label x:Name="label_speed" Content="倍速:" Margin="40,5,0,0" VerticalAlignment="Top" Foreground="White" HorizontalAlignment="Left"/>
+                                    <TextBlock x:Name="textBlock_speed" Margin="75,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="20" Foreground="White" Text="1.0" Height="19" Background="#00000000" HorizontalAlignment="Left"/>
+                                    <Slider x:Name="Slider_Speed" Margin="90,10,0,0" Width="78" Interval="1" Maximum="30" Value="10" ValueChanged="Slider_Speed_ValueChanged" SmallChange="1" HorizontalAlignment="Left" Height="18" VerticalAlignment="Top" Focusable="False" Cursor="Hand" ToolTip="加速/减速(Ctrl+↑/↓)"/>
+                                    <Button x:Name="btnVoice" Margin="165,7,0,0" Width="25" Foreground="#FF6E6E6E" Height="25" Style="{StaticResource CustomButton}" HorizontalAlignment="Left" VerticalAlignment="Top" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Sound.png"/>
+                                        </Button.Background>
+                                    </Button>
+
+                                    <Button x:Name="btnSub" Margin="190,5,0,0" Width="24" Height="24" Foreground="#FF6E6E6E" Style="{StaticResource CustomButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Sub.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Button x:Name="btnScreen" Margin="220,5,0,0" Width="24" Height="24" Foreground="#FF6E6E6E" Style="{StaticResource CustomButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" >
+                                        <Button.Background>
+                                            <ImageBrush ImageSource="Images/Screen.png"/>
+                                        </Button.Background>
+                                    </Button>
+                                    <Canvas x:Name="Canvas_Voice" Margin="124,-120,0,0" ToolTip="声音" Height="120" Width="35" Background="#FF303030" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <Slider x:Name="Slider_Voice" Canvas.Left="-25" Canvas.Top="39" Width="86" RenderTransformOrigin="0.5,0.5" Maximum="100" SmallChange="1" TickFrequency="10" ValueChanged="Slider_Vioce_ValueChanged" Interval="1" IsMoveToPointEnabled="True" AutoToolTipPlacement="BottomRight" Cursor="Hand">
+                                            <Slider.RenderTransform>
+                                                <TransformGroup>
+                                                    <ScaleTransform/>
+                                                    <SkewTransform/>
+                                                    <RotateTransform Angle="-90"/>
+                                                    <TranslateTransform/>
+                                                </TransformGroup>
+                                            </Slider.RenderTransform>
+                                        </Slider>
+                                        <Button x:Name="btn_Silence" Content="" Canvas.Left="5" Canvas.Top="96" Width="25" Height="25" Style="{StaticResource CustomButton}" Focusable="False" >
+                                            <Button.Background>
+                                                <ImageBrush ImageSource="Images/Sound.png"/>
+                                            </Button.Background>
+                                        </Button>
+                                    </Canvas>
+                                    <Canvas x:Name="Canvas_Sub" Margin="160,-60,0,0" ToolTip="字幕" Height="62" Width="90" Background="#FF303030" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Visible">
+                                        <Button x:Name="btnSubOpen" Content="加载字幕" Canvas.Left="0" Canvas.Top="0" Width="90" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Focusable="False" Foreground="White" />
+                                        <Button x:Name="btnSubVisible" Content="隐藏字幕" Canvas.Left="0" Canvas.Top="31" Width="90" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Focusable="False" Foreground="White" />
+                                    </Canvas>
+                                </Canvas>
+
+                            </Grid>
                         </Grid>
-                        <Grid x:Name="Grid_Top" Height="60" VerticalAlignment="Top" Background="#00000000">
-                            <Canvas x:Name="Canvas_Top" Height="30" VerticalAlignment="Top" Background="#33000000">
-                                <Label x:Name="label_NowFile" Content="VPlayer By WilliamT" Canvas.Top="0" Foreground="White" Width="auto" Height="auto" />
-                                <Button x:Name="btnTop" Content="" Canvas.Right="100" Width="25" Canvas.Top="0" Style="{StaticResource CustomButton}" Height="25" Click="btnTop_Click" VerticalAlignment="Top" Focusable="False"  HorizontalAlignment="Right" Cursor="Hand" >
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/NotPin.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnMin" Content="" Canvas.Right="70" Canvas.Top="0" Width="25" Style="{StaticResource CustomButton}" Click="btnMin_Click" Focusable="False" Height="25" Cursor="Hand">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Min.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnMax" Content="" Canvas.Right="40" Canvas.Top="0" Width="25" Style="{StaticResource CustomButton}" Click="btnMax_Click" Focusable="False" Height="25" Cursor="Hand">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Max.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnClose" Content="" Canvas.Right="10" Canvas.Top="0" Width="25" Style="{StaticResource CustomButton}" Click="btnClose_Click" Height="25" Focusable="False" Cursor="Hand">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Close.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnOpenFile_Copy" Content="" Canvas.Right="125" Canvas.Top="0" Width="25" Style="{StaticResource CustomButton}" Click="btnOpenFile_Click"  Height="25" HorizontalAlignment="Right" Focusable="False" Cursor="Hand" >
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/OpenFile.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Label x:Name="label_time" Content="XX:XX:XX" Foreground="White" Canvas.Top="0" Canvas.Right="165"  HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                            </Canvas>
-                        </Grid>
+                        <Button x:Name="btnShowList" Width="25"  Height="100" Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="Black" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  />
 
-                        <Grid x:Name="Grid_Menu" Margin="0" Height="80" VerticalAlignment="Bottom" Opacity="0.95" Background="#7F000000">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Label x:Name="Label_Process" Foreground="White" Margin="0,24,0,0" Background="#0C000000" Opacity="0.95"/>
-                            <Button x:Name="btnView" Width="24" Foreground="#FF6E6E6E" Height="24" Style="{StaticResource CustomButton}" Margin="0,34,66,0" HorizontalAlignment="Right" VerticalAlignment="Top" Focusable="False" Cursor="Hand" Click="btnView_Click" >
-                                <Button.Background>
-                                    <ImageBrush ImageSource="Images/BlackBorder.png"/>
-                                </Button.Background>
-                            </Button>
-                            <Button x:Name="btnSub" Width="24" Height="24" Foreground="#FF6E6E6E" Style="{StaticResource CustomButton}" Margin="0,34,40,0" HorizontalAlignment="Right" VerticalAlignment="Top" Focusable="False" Click="btnSub_Click" Cursor="Hand">
-                                <Button.Background>
-                                    <ImageBrush ImageSource="Images/Sub.png"/>
-                                </Button.Background>
-                            </Button>
-                            <Button x:Name="btnScreen" Width="24" Foreground="#FF6E6E6E"  Height="24" Style="{StaticResource CustomButton}" Margin="0,34,12,0" HorizontalAlignment="Right" VerticalAlignment="Top" Focusable="False" Click="btnScreen_Click" Cursor="Hand" ToolTip="全屏/退出全屏(F)">
-                                <Button.Background>
-                                    <ImageBrush ImageSource="Images/Screen.png"/>
-                                </Button.Background>
-                            </Button>
-                            <Button x:Name="btnVoice" Width="24" Foreground="#FF6E6E6E" Height="24" Style="{StaticResource CustomButton}" Margin="0,34,98,0" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnVoice_Click" Focusable="False" Cursor="Hand">
-                                <Button.Background>
-                                    <ImageBrush ImageSource="Images/Sound.png"/>
-                                </Button.Background>
-                            </Button>
-                            <Slider x:Name="Slider_Process"  Margin="35,4,35,52" Width="{Binding Width, ElementName=GirdMenu}" HorizontalAlignment="Stretch"  SmallChange="5" Interval="5" IsMoveToPointEnabled="True" Focusable="False" Cursor="Hand" PreviewMouseUp="Slider_Process_MouseUp" MouseMove="Slider_Process_MouseMove"  />
-                            <Button x:Name="btnLeft" Width="24" Foreground="#FF6E6E6E" Height="24" RenderTransformOrigin="0.958,1" Style="{StaticResource CustomButton}" Margin="6,2,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" Click="btnLeft_Click" ToolTip="快退(←)" Cursor="Hand">
-                                <Button.Background>
-                                    <ImageBrush ImageSource="Images/ToLeft.png"/>
-                                </Button.Background>
-                            </Button>
-                            <Button x:Name="btnRight" Width="24" Foreground="#FF6E6E6E" Height="24"  RenderTransformOrigin="0.875,1.625" Style="{StaticResource CustomButton}" Margin="0,2,6,0" HorizontalAlignment="Right" VerticalAlignment="Top" Focusable="False" Click="btnRight_Click" ToolTip="快进(→)" Cursor="Hand">
-                                <Button.Background>
-                                    <ImageBrush ImageSource="Images/ToRight.png"/>
-                                </Button.Background>
-                            </Button>
-                            <Canvas Height="42" Width="294" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,9">
-                                <Button x:Name="btnStart" Canvas.Left="97" Width="43" Height="36" Style="{StaticResource CustomButton}" Click="btnStart_Click" Focusable="False" Canvas.Top="1" ToolTip=" 开始/暂停(Space)" Cursor="Hand" Opacity="0.95">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Start.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnLast" Canvas.Left="52" Width="37" Foreground="#FF6E6E6E" Height="26" Style="{StaticResource CustomButton}" Focusable="False" Canvas.Top="7" Click="btnLast_Click" ToolTip="上一个(PageUp)" Cursor="Hand" Opacity="0.95">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Last.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnNext" Canvas.Left="148" Canvas.Top="7" Width="37" Foreground="#FF6E6E6E" Height="26" Style="{StaticResource CustomButton}" Focusable="False" Click="btnNext_Click" ToolTip="下一个(PageDown)" Cursor="Hand" Opacity="0.95">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Next.png"/>
-                                    </Button.Background>
-                                </Button>
-                                <Button x:Name="btnStop" Canvas.Left="2" Canvas.Top="5" Width="38" Foreground="#FF6E6E6E" Height="33" Style="{StaticResource CustomButton}" Focusable="False" Click="btnStop_Click" ToolTip="停止(End)" Cursor="Hand" Opacity="0.95">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Stop.png"/>
-                                    </Button.Background>
-                                </Button>
-                            </Canvas>
-                            <Label x:Name="label_speed" Content="倍速:" Margin="0,31,230,0" VerticalAlignment="Top" Foreground="White" HorizontalAlignment="Right"/>
-                            <TextBlock x:Name="textBlock_speed" Margin="0,36,200,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="26" Foreground="White" Text="1.0" Height="19" Background="#00000000" HorizontalAlignment="Right"/>
-                            <Slider x:Name="Slider_Speed" Margin="0,0,124,24" Width="78" Interval="1" Maximum="30" Value="10" ValueChanged="Slider_Speed_ValueChanged" SmallChange="1" HorizontalAlignment="Right" Height="18" VerticalAlignment="Bottom" Focusable="False" Cursor="Hand" ToolTip="加速/减速(Ctrl+↑/↓)"/>
+                        <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC282828" HorizontalAlignment="Stretch" Focusable="False" />
+                        <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC383838" Foreground="#FFB1B1B1" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0" >
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type local:MediaFileNode}" ItemsSource="{Binding Childs}">
+                                    <TextBlock Text="{Binding Name}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Background" Value="Gray"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsRecorded}" Value="True">
+                                                        <Setter Property="Foreground" Value="LightGray"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsUsing}" Value="True">
+                                                        <Setter Property="Foreground" Value="SkyBlue"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="TreeViewItem">
+                                    <!--<Setter Property="IsSelected" Value="{Binding IsSelected}" />-->
+                                    <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                                    <Setter Property="ContextMenu" Value="{Binding ContextMenu}"/>
+                                    <Setter Property="ToolTip" Value="{Binding Name}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <EventSetter Event="TreeViewItem.PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
 
-                            <Canvas x:Name="Canvas_View" ToolTip="画面" Height="155" Width="136" Background="#FF303030" Margin="0,-86,15,42" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Hidden">
-                                <Button Name="btnViewClock90" Content="顺时针旋转90度" Canvas.Left="0" Canvas.Top="0" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewClock90_Click" />
-                                <Button Name="btnViewRClock90" Content="逆时针旋转90度" Canvas.Left="0" Canvas.Top="31" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White"  Click="menuViewRClock90_Click" />
-                                <Button Name="btnViewZoomUp" Content="放大0.25(当前视窗)" Canvas.Left="0" Canvas.Top="62" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewZoomUp_Click" />
-                                <Button Name="btnViewZoomDown" Content="缩小0.25(当前视窗)" Canvas.Left="0" Canvas.Top="93" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewZoomDown_Click" />
-                                <Button Name="btnViewLongerFit" Content="较长轴自适应" Canvas.Left="0" Canvas.Top="124" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewLongerFit_Click" />
-                                <Button Name="btnViewHeightFit" Content="高度自适应(可能遮盖横向两侧)" Canvas.Left="0" Canvas.Top="124" Width="{Binding Width,ElementName=Canvas_View}" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E"  Focusable="False" Foreground="White" Click="menuViewHeightFit_Click" />
-                            </Canvas>
-
-                            <Canvas x:Name="Canvas_Voice" ToolTip="声音" Height="120" Width="35" Background="#FF303030" Margin="0,-86,93,42" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                <Slider x:Name="Slider_Voice" Canvas.Left="-25" Canvas.Top="39" Width="86" RenderTransformOrigin="0.5,0.5" Maximum="100" SmallChange="1" TickFrequency="10" ValueChanged="Slider_Vioce_ValueChanged" Interval="1" IsMoveToPointEnabled="True" AutoToolTipPlacement="BottomRight" Cursor="Hand">
-                                    <Slider.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform/>
-                                            <SkewTransform/>
-                                            <RotateTransform Angle="-90"/>
-                                            <TranslateTransform/>
-                                        </TransformGroup>
-                                    </Slider.RenderTransform>
-                                </Slider>
-                                <Button x:Name="btn_Silence" Content="" Canvas.Left="5" Canvas.Top="96" Width="25" Style="{StaticResource CustomButton}" Focusable="False" Click="btn_Silence_Click" Cursor="Hand">
-                                    <Button.Background>
-                                        <ImageBrush ImageSource="Images/Sound.png"/>
-                                    </Button.Background>
-                                </Button>
-                            </Canvas>
-                            <Canvas x:Name="Canvas_Sub" ToolTip="字幕" Height="62" Width="106" Background="#FF303030" Margin="0,-86,0,42" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Hidden">
-                                <Button x:Name="btnSubOpen" Content="加载字幕" Canvas.Left="0" Canvas.Top="0" Width="106" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Focusable="False" Foreground="White" Click="btnSubOpen_Click"/>
-                                <Button x:Name="btnSubVisible" Content="隐藏字幕" Canvas.Left="0" Canvas.Top="31" Width="106" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Focusable="False" Foreground="White" Click="btnSubVisible_Click"/>
-                            </Canvas>
-                        </Grid>
-                    </Grid>
-                </Canvas>
-            </Grid>
-            <Button x:Name="btnPinList" Grid.Column="0" Margin="0,-165,0,0" HorizontalAlignment="Right" Opacity="0.95" Style="{StaticResource CustomButton}" Click="btnPinList_Click" Width="25" Height="25" Focusable="False" Cursor="Hand">
-                <Button.Background>
-                    <ImageBrush ImageSource="Images/NotPin.png"/>
-                </Button.Background>
-            </Button>
-
-            <Button x:Name="btnShowList"  Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="Black" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="btnShowList_Click" Width="25" Height="130" Focusable="False" Cursor="Hand" />
-
-            <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC282828" HorizontalAlignment="Stretch" Focusable="False" />
-            <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC383838" Foreground="#FFB1B1B1" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0" MouseDoubleClick="TreeView_File_MouseDoubleClick" SizeChanged="TreeView_File_SizeChanged">
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:MediaFileNode}" ItemsSource="{Binding Childs}">
-                        <TextBlock Text="{Binding Name}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="Background" Value="Gray"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsRecorded}" Value="True">
-                                            <Setter Property="Foreground" Value="LightGray"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsUsing}" Value="True">
-                                            <Setter Property="Foreground" Value="SkyBlue"/>
+                                        <DataTrigger Binding="{Binding  RelativeSource={RelativeSource self},Path=IsSelected}" Value="True">
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="BorderBrush" Value="Green"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="TreeViewItem">
-                        <!--<Setter Property="IsSelected" Value="{Binding IsSelected}" />-->
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
-                        <Setter Property="ContextMenu" Value="{Binding ContextMenu}"/>
-                        <Setter Property="ToolTip" Value="{Binding Name}"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <EventSetter Event="TreeViewItem.PreviewMouseRightButtonDown" Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
-                        
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding  RelativeSource={RelativeSource self},Path=IsSelected}" Value="True">
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="BorderBrush" Value="Green"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TreeView.ItemContainerStyle>
+                            </TreeView.ItemContainerStyle>
 
-                <TreeView.ContextMenu>
-                    <ContextMenu MouseMove="Grid_Form_MouseMove">
-                        <MenuItem Header="删除节点记录" Click="menuDeleteNodeRecord_Click" />
-                        <MenuItem Header="打开节点目录" Click="menuOpenNodeFolder_Click"/>
-                        <MenuItem Header="清空播放记录" Click="menuClearList_Click"/>
-                    </ContextMenu>
-                </TreeView.ContextMenu>
-            </TreeView>
+                            <TreeView.ContextMenu>
+                                <ContextMenu MouseMove="Grid_Mask_MouseMove">
+                                    <MenuItem Name="menuDeleteNodeRecord" Header="删除节点记录"  />
+                                    <MenuItem Name="menuOpenNodeFolder" Header="打开节点目录" />
+                                    <MenuItem Name="menuClearList" Header="清空播放记录" />
+                                </ContextMenu>
+                            </TreeView.ContextMenu>
+                        </TreeView>
 
+                    </Grid>
+                    <Canvas x:Name="Canvas_File" Margin="0,0,0,0" Height="40" HorizontalAlignment="Center" Width="190" VerticalAlignment="Center">
+                        <Button x:Name="btnOpenFile" Content="打开文件" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Foreground="White" />
+                        <Button x:Name="btnDown" Content="▼" Canvas.Left="78" Width="28" Background="#FF0E0E0E" Foreground="White" />
+                        <Button x:Name="btnOpenFolder" Content="打开文件夹" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="106" RenderTransformOrigin="0.491,0.5" Background="#FF0E0E0E" Foreground="White" Canvas.Top="18" Height="20" Visibility="Visible" />
+
+                    </Canvas>
+                </Grid>
+            </vlc:VideoView>
         </Grid>
-        <Canvas x:Name="Canvas_File" Margin="0,0,0,0" Height="40" HorizontalAlignment="Center" Width="190" VerticalAlignment="Center">
-            <Button x:Name="btnOpenFile" Content="打开文件" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Foreground="White" Click="btnOpenFile_Click" Focusable="False" Cursor="Hand"/>
-            <Button x:Name="btnDown" Content="▼" Canvas.Left="78" Width="28" Background="#FF0E0E0E" Foreground="White" Click="btnDown_Click" Focusable="False" Cursor="Hand"/>
-            <Button x:Name="btnOpenFolder" Content="打开文件夹" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="106" RenderTransformOrigin="0.491,0.5" Background="#FF0E0E0E" Foreground="White" Canvas.Top="18" Height="20" Visibility="Visible" Click="btnOpenFolder_Click" Focusable="False" Cursor="Hand"/>
-
-        </Canvas>
     </Grid>
 </local:VcreditWindow>

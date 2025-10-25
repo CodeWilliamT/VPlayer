@@ -8,34 +8,34 @@
             </Border.Effect>
             <Grid x:Name="ResizingGrid">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="3"/>
                     <RowDefinition/>
-                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="3"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="3"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="3"/>
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Row="1" Grid.Column="1" Background="White" >
                     <AdornerDecorator>
                         <ContentPresenter></ContentPresenter>
                     </AdornerDecorator>
                 </Grid>
-                <Rectangle Name="ResizeTopLeft" Fill="White" Grid.Row="0" Grid.Column="0" Opacity=".25"/>
-                <Rectangle Name="ResizeTop" Fill="White" Grid.Row="0" Grid.Column="1" Opacity=".25"/>
-                <Rectangle Name="ResizeTopRight" Fill="White" Grid.Row="0" Grid.Column="2" Opacity=".25"/>
-                <Rectangle Name="ResizeLeft" Fill="White" Grid.Row="1" Grid.Column="0" Opacity=".25"/>
-                <Rectangle Name="ResizeRight" Fill="White" Grid.Row="1" Grid.Column="2" Opacity=".25"/>
-                <Rectangle Name="ResizeBottomLeft" Fill="White" Grid.Row="2" Grid.Column="0" Opacity=".25"/>
-                <Rectangle Name="ResizeBottom" Fill="White" Grid.Row="2" Grid.Column="1" Opacity=".25"/>
-                <Rectangle Name="ResizeBottomRight" Fill="White" Grid.Row="2" Grid.Column="2" Opacity=".25"/>
+                <Rectangle Name="ResizeTopLeft" Fill="White" Grid.Row="0" Grid.Column="0" Opacity=".01"/>
+                <Rectangle Name="ResizeTop" Fill="White" Grid.Row="0" Grid.Column="1" Opacity=".01"/>
+                <Rectangle Name="ResizeTopRight" Fill="White" Grid.Row="0" Grid.Column="2" Opacity=".01"/>
+                <Rectangle Name="ResizeLeft" Fill="White" Grid.Row="1" Grid.Column="0" Opacity=".01"/>
+                <Rectangle Name="ResizeRight" Fill="White" Grid.Row="1" Grid.Column="2" Opacity=".01"/>
+                <Rectangle Name="ResizeBottomLeft" Fill="White" Grid.Row="2" Grid.Column="0" Opacity=".01"/>
+                <Rectangle Name="ResizeBottom" Fill="White" Grid.Row="2" Grid.Column="1" Opacity=".01"/>
+                <Rectangle Name="ResizeBottomRight" Fill="White" Grid.Row="2" Grid.Column="2" Opacity=".01"/>
             </Grid>
         </Border>
     </ControlTemplate>
 
     <Style x:Key="CustomWindow" TargetType="Window">
-        <Setter Property="AllowsTransparency" Value="True"/>
+        <!--<Setter Property="AllowsTransparency" Value="True"/>-->
         <Setter Property="WindowStyle" Value="None"/>
         <Setter Property="Template" Value="{StaticResource CustomWindowTemplete}"></Setter>
     </Style>
@@ -43,7 +43,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Button}">
-                    <Border Background="{TemplateBinding Background}" BorderBrush="#00000000" BorderThickness="0">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="#01000000" BorderThickness="0">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
@@ -54,7 +54,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="{TemplateBinding Background}" BorderBrush="#FF6492E4" BorderThickness="1">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="#FF6492E4" BorderThickness="0">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </ControlTemplate>
