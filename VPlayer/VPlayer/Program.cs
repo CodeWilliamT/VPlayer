@@ -11,7 +11,11 @@ namespace VPlayer
 {
     public class Program
     {
-        public static string configPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Vplayer.exe.Config";
+
+        public static string configPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Vplayer.Config.Json";
+        //public static string configPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Vplayer.exe.Config";
+        //public static string FileRecordsPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Vplayer.FileRecords.Json";
+        //public static string List_DirctoryPath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Vplayer.List_Dirctory.Json";
         public static string[] startStr;
 
         /// <summary>
@@ -27,7 +31,7 @@ namespace VPlayer
             {
                 startStr = args;
             }
-            AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
+            //AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configPath);
             VPlayer.App app = new VPlayer.App();
             app.InitializeComponent();
             app.Run();

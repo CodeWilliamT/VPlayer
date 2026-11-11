@@ -48,8 +48,37 @@ namespace CommonPlayer
             ".aac",".ac3",".acc",".aiff",".ape",".au",".cda",".dts",".flac",".m1a",".m2a",".m4a",".mka",".mp2",/*".mp3",*/".mpa",".mpc",".ra",".tta",".wav",".wma",".wv",".mid",".midi",
             ".ogg",".oga",".dvd",".vqf"
         };
+        public readonly struct TrackDescription
+        {
+            //
+            // Summary:
+            //     Track description Id
+            public int Id { get; }
+
+            //
+            // Summary:
+            //     Track description
+            public string Name { get; }
+
+            //
+            // Summary:
+            //     TrackDescription constructor
+            //
+            // Parameters:
+            //   id:
+            //     Track description Id
+            //
+            //   name:
+            //     Track description
+            internal TrackDescription(int id, string name)
+            {
+                Id = id;
+                Name = name;
+            }
+        }
+        public virtual string CodecInfo { get; }
         public virtual double ActualHeight { get => uie.ActualHeight; }
-        public double ActualWidth { get => uie.ActualWidth; }
+        public virtual double ActualWidth { get => uie.ActualWidth; }
         public double Height { get => uie.Height; set => uie.Height = value; }
         public double Width { get => uie.Width; set => uie.Width = value; }
 
@@ -64,6 +93,22 @@ namespace CommonPlayer
         public double SpeedRatio { get; set; }
         public int Volume { get; set; }
 
+        public int AudioTrack
+        {
+            get;set;
+        }
+        public int SubtitleTrack { get; set; }
+
+        public TrackDescription[] AudioTrackDescription
+        {
+            get;
+        }
+
+        public TrackDescription[] SubtitleTrackDescription
+        {
+            get;
+        }
+        public virtual void AddSubtile(string subName){}
         public abstract void Open(string fileName);
         public abstract void Play();
         public abstract void Pause();
@@ -82,6 +127,10 @@ namespace CommonPlayer
         private DirectoryInfo libDirectory = new DirectoryInfo(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "VLC"));
         private int naturalVideoWidth = 1280;
         private int naturalVideoHeight = 720;
+        private string codecInfo = "";
+
+        private TrackDescription[] audioTrackDescription=null;
+        private TrackDescription[] subtitleTrackDescription = null;
 
         public LibVLCPlayer(FrameworkElement obj) : base(obj)
         {
@@ -125,16 +174,17 @@ namespace CommonPlayer
             //":qsv-device=auto", // 自动选择QSV设备（在某些情况下）
             //"--directx-use-sysmem", //  在系统内存中使用视频缓冲区
             //":qsv-fallback-to-sw=0", // 不回退到软件解码
-            //"--no-sub-autoload", // 别自动加载字幕
-            
-            "--no-sub-autodetect-file" // 别自动加载字幕文件
+            //":--no-sub-autoload", // 别自动加载字幕
+            //"--sub-autodetect-file" // 别自动加载字幕文件
             };
             libvlc = new LibVLC(options);
             player = new LibVLCSharp.Shared.MediaPlayer(libvlc);
             vlc.MediaPlayer = player;
+            player.EnableKeyInput = false;
             player.EndReached += TriggerMediaEnded;
         }
 
+        public virtual string CodecInfo { get=> codecInfo; }
 
         public float Scale 
         { 
@@ -186,6 +236,72 @@ namespace CommonPlayer
         public int Volume { get => player.Volume; set => player.Volume = value; }
 
 
+        public int AudioTrack
+        {
+            get => player.AudioTrack;
+            set
+            {
+                player.SetAudioTrack(value);
+            }
+        }
+
+        public int SubtitleTrack
+        {
+            get => player.Spu;
+            set
+            {
+                Task task=new Task(() => {
+                    DateTime t = DateTime.Now;
+                    while (value >=media.Tracks.Length&& DateTime.Now.Subtract(t).TotalMilliseconds < 5000)
+                    {
+                        System.Threading.Thread.Sleep(50);
+                    }
+                    player.SetSpu(value);
+                });
+                task.Start();
+            }
+        }
+
+        public TrackDescription[] AudioTrackDescription
+        {
+            get
+            {
+                if (audioTrackDescription != null) goto _End;
+                List<TrackDescription> tmp = new List<TrackDescription>();
+                foreach (var item in player.AudioTrackDescription)
+                {
+                    tmp.Add(new TrackDescription(item.Id, item.Name));
+                }
+                audioTrackDescription = tmp.ToArray();
+            _End:
+                return audioTrackDescription;
+            }
+        }
+
+        public TrackDescription[] SubtitleTrackDescription
+        {
+            get
+            {
+                if (subtitleTrackDescription != null) goto _End;
+                List<TrackDescription> tmp = new List<TrackDescription>();
+                foreach (var track in media.Tracks)
+                {
+                    if (track.TrackType == TrackType.Text)
+                    {
+                        tmp.Add(new TrackDescription(track.Id, track.Description));
+                    }
+                }
+                subtitleTrackDescription = tmp.ToArray();
+            _End:
+                return subtitleTrackDescription;
+            }
+        }
+
+        public void AddSubtile(string subName) 
+        {
+            player.AddSlave(MediaSlaveType.Subtitle, $"file:///{subName.Replace('\\', '/')}", false);
+        }
+
         public override void Open(string fileName)
         {
             try
@@ -210,6 +326,7 @@ namespace CommonPlayer
                 Dispatcher.InvokeAsync(() => {
                     vlc.Opacity = 1;
                 });
+                audioTrackDescription = null;
 
             }
             catch (Exception ex)
@@ -227,6 +344,7 @@ namespace CommonPlayer
         }
         public override void Stop()
         {
+            codecInfo = "";
             player.Media.Dispose();
             media = null;
             Dispatcher.InvokeAsync(() => {
@@ -245,11 +363,40 @@ namespace CommonPlayer
         public override void GetVideoResolution()
         {
             if (player.VideoTrackCount == 0) return;
-            MediaTrack[] tracks = media.Tracks; // 获取媒体轨道信息
-            MediaTrack track = tracks.FirstOrDefault(t => t.TrackType == TrackType.Video); // 查找视频轨道
-            VideoTrack videoTrack = track.Data.Video;
-            naturalVideoWidth = (int)videoTrack.Width;
-            naturalVideoHeight = (int)videoTrack.Height;
+
+            codecInfo = "";
+            // 获取媒体轨道信息
+            foreach (MediaTrack track in media.Tracks)
+            {
+                string codecName = media.CodecDescription(track.TrackType, track.Codec);
+                long bitrateBps = track.Bitrate;
+
+                if (track.Bitrate == 0)
+                {
+                    long durationMs = media.Duration;
+                    long fileBytes = new FileInfo((new Uri(media.Mrl)).LocalPath).Length;
+                    // 码率 bps = 总字节 *8 / 秒数
+                    double totalSeconds = durationMs / 1000.0;
+                    bitrateBps = (long)(fileBytes * 8 / totalSeconds);
+                }
+
+                codecInfo +=$"轨道类型:{track.TrackType}, 编码:{codecName}, 标称码率:{(bitrateBps/1000.0):F1} Kbps\n";
+
+                if (track.TrackType == TrackType.Video)
+                {
+                    VideoTrack videoTrack = track.Data.Video;
+                    naturalVideoWidth = (int)videoTrack.Width;
+                    naturalVideoHeight = (int)videoTrack.Height;
+                    //player.SetSpu(-1);// 别自动加载字幕
+                    var v = track.Data.Video;
+                    codecInfo += $"视频：{v.Width}x{v.Height}, 帧率 {v.FrameRateNum}/{v.FrameRateDen}\n";
+                }
+                else if (track.TrackType == TrackType.Audio)
+                {
+                    var a = track.Data.Audio;
+                    codecInfo += $"音频：{a.Rate} Hz, 声道:{a.Channels}\n";
+                }
+            }
         }
         #region private fuc
         private void TriggerMediaEnded(object obj, EventArgs e)
@@ -269,6 +416,7 @@ namespace CommonPlayer
             player = uie as MediaElement;
             player.MediaEnded += TriggerMediaEnded;
         }
+        public virtual string CodecInfo { get; }
         public float Scale { get => scale; set { scale = value; player.Width= ((Panel)player.Parent).ActualWidth * scale; player.Height = ((Panel)player.Parent).ActualHeight * scale; } }
         public TimeSpan Position { get => player.Position; set => player.Position = value; }
         public bool IsPlaying

@@ -11,8 +11,8 @@
     <Grid x:Name="Grid_Form" Background="#01000000" Margin="0,0,0,0">
         <Grid x:Name="Grid_Player" Margin="0,0,0,0" Background="Black" >
             <vlc:VideoView x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <!--<MediaElement x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />-->
-            <Grid x:Name="Grid_Mask" Background="#01000000" Margin="0,0,0,0" AllowDrop="True">
+                <!--<MediaElement x:Name="PlayerElement" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />-->
+                <Grid x:Name="Grid_Mask" Background="#01000000" Margin="0,0,0,0" AllowDrop="True">
                     <Grid.ContextMenu>
                         <ContextMenu MouseMove="Grid_Mask_MouseMove">
                             <MenuItem Name="menuOpen" Header="打开">
@@ -20,8 +20,10 @@
                                 <MenuItem Name="menuOpenFolder" Header="打开文件夹"/>
                             </MenuItem>
                             <MenuItem Name="menuSub" Header="字幕">
+                                <MenuItem Name="menuSubTracks" Header="选择字幕" />
                                 <MenuItem Name="menuSubOpen" Header="加载字幕" />
-                                <MenuItem Name="menuSubVisible" Header="隐藏字幕" />
+                                <MenuItem Name="menuSubFormatted" Header="使用特效字幕" />
+                                <MenuItem Name="menuSubHide" Header="隐藏字幕" />
                             </MenuItem>
                             <MenuItem Name="menuPlayOverActions" Header="播放完毕后">
                                 <MenuItem Name="menuCheckPlayNext" Header="播下一个" IsCheckable="True" Checked="menuPlayOverActions_Items_Checked" Tag="PlayNext"/>
@@ -38,11 +40,14 @@
                                 <MenuItem Name="menuViewZoomUp" Header="放大0.25(当前视窗)"  />
                                 <MenuItem Name="menuViewZoomDown" Header="缩小0.25(当前视窗)"  />
                             </MenuItem>
+                            <MenuItem Name="menuAudioTrack" Header="音轨"/>
+
                             <MenuItem Name="menuOpenDir" Header="打开当前目录" />
                             <MenuItem Name="menuScreen" Header="全屏" />
                             <MenuItem Name="menuTop" Header="最前显示" />
                             <MenuItem Name="menuSetDefault" Header="设为默认媒体程序"  />
                             <MenuItem Name="menuInstallHEVC" Header="从微软商城安装HEVC解码器"   />
+                            <MenuItem Name="menuCodecInfo" Header="编码信息"   />
                         </ContextMenu>
                     </Grid.ContextMenu>
                     <Grid x:Name="Grid_Center" Margin="0,0,0,0">
@@ -91,11 +96,11 @@
                             </Grid>
                             <Grid x:Name="Grid_Sub" Grid.Row="1" Margin="0,0,0,0" Background="#01000000">
                                 <TextBlock x:Name="textBlock_Log" HorizontalAlignment="Left" Margin="15,-30,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
-                                <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,-18" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,-22" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,-20" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,-20" TextWrapping="Wrap" Text="{Binding Text, ElementName=tbSub}" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="Black" FontSize="{Binding FontSize, ElementName=tbSub}" TextAlignment="Center" FontWeight="{Binding FontWeight, ElementName=tbSub}" Visibility="{Binding Visibility, ElementName=tbSub}"/>
-                                <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,60" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" RenderTransformOrigin="2.545,0.762" Foreground="White" FontSize="17" TextAlignment="Center" FontWeight="Bold"/>
+                                <TextBlock x:Name="tbSubUp" HorizontalAlignment="Center" Margin="0,0,0,-18" TextWrapping="Wrap"  VerticalAlignment="Bottom"  Foreground="Black" FontSize="20" TextAlignment="Center" FontWeight="Bold" />
+                                <TextBlock x:Name="tbSubDown" HorizontalAlignment="Center" Margin="0,0,0,-22"  TextWrapping="Wrap" VerticalAlignment="Bottom" Foreground="Black" FontSize="20" TextAlignment="Center" FontWeight="Bold"/>
+                                <TextBlock x:Name="tbSubLeft" HorizontalAlignment="Center" Margin="2,0,0,-20" TextWrapping="Wrap" VerticalAlignment="Bottom" Foreground="Black" FontSize="20" TextAlignment="Center" FontWeight="Bold" />
+                                <TextBlock x:Name="tbSubRight" HorizontalAlignment="Center" Margin="0,0,2,-20" TextWrapping="Wrap" VerticalAlignment="Bottom" Foreground="Black" FontSize="20" TextAlignment="Center" FontWeight="Bold"/>
+                                <TextBlock x:Name="tbSub" HorizontalAlignment="Center" Margin="0,0,0,-20" TextWrapping="Wrap" Text="" VerticalAlignment="Bottom" Foreground="White" FontSize="20" TextAlignment="Center" FontWeight="Bold" />
                             </Grid>
                             <Grid x:Name="Grid_Menu" Grid.Row="2" Margin="0" VerticalAlignment="Bottom" Opacity="0.95" Background="#7F000000">
                                 <Grid.ColumnDefinitions>
@@ -115,6 +120,12 @@
                                         <ImageBrush ImageSource="Images/ToRight.png"/>
                                     </Button.Background>
                                 </Button>
+
+                                <Canvas Height="42" Width="194" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40,30,0,0">
+                                    <Label x:Name="label_Light" Content="亮度:" Foreground="White" Canvas.Left="0" Canvas.Top="6" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                                    <TextBlock x:Name="textBlock_Light" TextWrapping="Wrap" Width="30" Foreground="White" Text="100%" Height="20" Background="#00000000" Canvas.Left="35" Canvas.Top="11" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <Slider x:Name="Slider_Light" Width="78" Interval="5" Maximum="100" Value="100" ValueChanged="Slider_Light_ValueChanged" SmallChange="5" Height="18" Focusable="False" Cursor="Hand" ToolTip="变亮/变暗(Ctrl+←/→)" Canvas.Left="70" Canvas.Top="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                </Canvas>
                                 <Canvas Height="42" Width="194" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,30,0,0">
                                     <Button x:Name="btnStop" Canvas.Left="2" Canvas.Top="5" Width="38" Foreground="#FF6E6E6E" Height="33" Style="{StaticResource CustomButton}" Focusable="False" >
                                         <Button.Background>
@@ -148,12 +159,6 @@
                                             <ImageBrush ImageSource="Images/Sound.png"/>
                                         </Button.Background>
                                     </Button>
-
-                                    <Button x:Name="btnSub" Margin="190,5,0,0" Width="24" Height="24" Foreground="#FF6E6E6E" Style="{StaticResource CustomButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" >
-                                        <Button.Background>
-                                            <ImageBrush ImageSource="Images/Sub.png"/>
-                                        </Button.Background>
-                                    </Button>
                                     <Button x:Name="btnScreen" Margin="220,5,0,0" Width="24" Height="24" Foreground="#FF6E6E6E" Style="{StaticResource CustomButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="False" >
                                         <Button.Background>
                                             <ImageBrush ImageSource="Images/Screen.png"/>
@@ -176,23 +181,20 @@
                                             </Button.Background>
                                         </Button>
                                     </Canvas>
-                                    <Canvas x:Name="Canvas_Sub" Margin="160,-60,0,0" ToolTip="字幕" Height="62" Width="90" Background="#FF303030" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Visible">
-                                        <Button x:Name="btnSubOpen" Content="加载字幕" Canvas.Left="0" Canvas.Top="0" Width="90" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Focusable="False" Foreground="White" />
-                                        <Button x:Name="btnSubVisible" Content="隐藏字幕" Canvas.Left="0" Canvas.Top="31" Width="90" Height="30" RenderTransformOrigin="0.5,0.455" Background="#FF0E0E0E" Focusable="False" Foreground="White" />
-                                    </Canvas>
                                 </Canvas>
 
                             </Grid>
                         </Grid>
-                        <Button x:Name="btnShowList" Width="25"  Height="100" Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="Black" Opacity="0.95" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  />
+                        <Button x:Name="btnShowList" Width="25"  Height="100" Grid.Column="0" Margin="0,0,0,0" Content="&gt;" HorizontalAlignment="Right" Background="Black" Opacity="0.95" Focusable="False" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  />
 
                         <GridSplitter x:Name="GridSplitter_List" Grid.Column="1"  Background="#CC282828" HorizontalAlignment="Stretch" Focusable="False" />
                         <TreeView x:Name="TreeView_File" Grid.Column="2"  Background="#CC383838" Foreground="#FFB1B1B1" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#00ABADB3" BorderThickness="0" >
                             <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate DataType="{x:Type local:MediaFileNode}" ItemsSource="{Binding Childs}">
+                                <HierarchicalDataTemplate DataType="{x:Type local:MediaNode}" ItemsSource="{Binding Childs}">
                                     <TextBlock Text="{Binding Name}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
+                                                <Setter Property="ToolTip" Value="{Binding ToolTip}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                         <Setter Property="Background" Value="Gray"/>
@@ -229,9 +231,10 @@
 
                             <TreeView.ContextMenu>
                                 <ContextMenu MouseMove="Grid_Mask_MouseMove">
-                                    <MenuItem Name="menuDeleteNodeRecord" Header="删除节点记录"  />
                                     <MenuItem Name="menuOpenNodeFolder" Header="打开节点目录" />
-                                    <MenuItem Name="menuClearList" Header="清空播放记录" />
+                                    <MenuItem Name="menuDeleteNodeRecord" Header="删除该节点记录"  />
+                                    <MenuItem Name="menuClearRecords" Header="清空播放进度" />
+                                    <MenuItem Name="menuClearList" Header="清空播放列表" />
                                 </ContextMenu>
                             </TreeView.ContextMenu>
                         </TreeView>
